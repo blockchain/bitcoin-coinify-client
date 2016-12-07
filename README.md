@@ -10,7 +10,7 @@ This is used by [My-Wallet-V3](https://github.com/blockchain/My-Wallet-V3/).
 
 Three things are needed:
 
-1. `delegate` object with functions that provide the following:
+1. `delegate` object (see [example](https://github.com/blockchain/My-Wallet-V3/blob/master/src/exchange-delegate.js)) with functions that provide the following:
  * save() -> e.g. `function () { return JSON.stringify(this._coinify);` }
  * `email()` -> String : the users email address
  * `isEmailVerified()` -> Boolean : whether the users email is verified
