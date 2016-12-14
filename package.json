@@ -34,8 +34,6 @@
     "babelify": "7.3.*",
     "browserify": "13.*",
     "browserify-istanbul": "2.0.*",
-    "coffee-script": "~1.8.0",
-    "coffeeify": "2.0.*",
     "coveralls": "^2.11.14",
     "eslint": "2.*",
     "git-changelog": "1.0.*",
@@ -43,7 +41,6 @@
     "jasmine-es6-promise-matchers": "^2.0.1",
     "karma": "0.13.*",
     "karma-browserify": "5.1.*",
-    "karma-coffee-preprocessor": "1.0.*",
     "karma-coverage": "1.1.*",
     "karma-jasmine": "1.0.*",
     "karma-osx-reporter": "0.2.*",
@@ -59,7 +56,16 @@
       "README.md"
     ],
     "globals": [
-      "fetch"
+      "fetch",
+      "beforeEach",
+      "afterEach",
+      "describe",
+      "expect",
+      "it",
+      "JasminePromiseMatchers",
+      "jasmine",
+      "spyOn",
+      "pending"
     ]
   },
   "engines": {
