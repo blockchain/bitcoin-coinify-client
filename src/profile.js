@@ -89,6 +89,24 @@ Object.defineProperties(CoinifyProfile.prototype, {
     get: function () {
       return this._currentLimits;
     }
+  },
+  'canTrade': {
+    configurable: false,
+    get: function () {
+      return this._canTrade;
+    }
+  },
+  'canTradeAfter': {
+    configurable: false,
+    get: function () {
+      return this._canTradeAfter;
+    }
+  },
+  'cannotTradeReason': {
+    configurable: false,
+    get: function () {
+      return this._cannotTradeReason;
+    }
   }
 });
 
@@ -116,6 +134,10 @@ CoinifyProfile.prototype.fetch = function () {
     parentThis._level = new Level(res.level);
     parentThis._nextLevel = new Level(res.nextLevel);
     parentThis._currentLimits = new Limits(res.currentLimits);
+
+    parentThis._canTrade = res.canTrade == null ? true : Boolean(res.canTrade);
+    parentThis._canTradeAfter = new Date(res.canTradeAfter);
+    parentThis._cannotTradeReason = res.cannotTradeReason;
 
     parentThis._did_fetch = true;
 
