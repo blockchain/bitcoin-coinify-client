@@ -19,7 +19,6 @@ Three things are needed:
  * `checkAddress(address)` : look for existing transaction at address
  * `getReceiveAddress(trade)` : return the trades receive address
  * `reserveReceiveAddress()`
- * `commitReceiveAddress()`
  * `releaseReceiveAddress()`
  * `serializeExtraFields(obj, trade)` : e.g. `obj.account_index = ...`
  * `deserializeExtraFields(obj, trade)`
@@ -31,6 +30,7 @@ var object = {user: 1, offline_token: 'token'};
 var coinify = new Coinify(object, delegate);
 coinify.partnerId = ...;
 coinify.delegate.save.bind(coinify.delegate)();
+delegate.trades = coinify.trades
 // "{"user":1,"offline_token":"token"}"
 ```
 
