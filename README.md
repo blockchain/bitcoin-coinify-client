@@ -34,6 +34,13 @@ coinify.delegate.save.bind(coinify.delegate)();
 // "{"user":1,"offline_token":"token"}"
 ```
 
+To see a demo switch to Node 7.2 or higher and run:
+
+```sh
+nvm use 7.2
+node demo.js
+```
+
 ## Development
 
 ### Modifying bitcoin-exchange-client

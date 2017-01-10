@@ -16,6 +16,10 @@
             "grep": "^docs"
         },
         {
+            "title": "Developer Tools",
+            "grep": "^dev"
+        },
+        {
             "title": "Breaking changes",
             "grep": "BREAKING"
         },
