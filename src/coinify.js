@@ -13,7 +13,7 @@ class Coinify extends Exchange.Exchange {
   constructor (object, delegate) {
     super(delegate, Trade, Quote, PaymentMedium);
 
-    assert(delegate.getEmailToken, 'delegate.getEmailToken() required')
+    assert(delegate.getEmailToken, 'delegate.getEmailToken() required');
 
     var obj = object || {};
     this._partner_id = null;
