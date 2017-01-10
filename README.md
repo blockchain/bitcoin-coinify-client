@@ -34,6 +34,30 @@ coinify.delegate.save.bind(coinify.delegate)();
 // "{"user":1,"offline_token":"token"}"
 ```
 
+## Development
+
+### Modifying bitcoin-exchange-client
+
+To use a local version of bitcoin-exchange-client, create a symlink:
+
+```sh
+cd ..
+rm -rf bitcoin-coinify-client/node_modules/bitcoin-exchange-client
+ln -s ../../bitcoin-exchange-client bitcoin-coinify-client/node_modules/bitcoin-exchange-client
+```
+
+### Testing inside my-wallet-v3
+
+To use a local version of this repo inside my-wallet-v3, create a symlink:
+
+```sh
+cd ..
+rm -rf My-Wallet-V3/node_modules/bitcoin-coinify-client
+ln -s ../../bitcoin-coinify-client My-Wallet-V3/node_modules/bitcoin-coinify-client
+```
+
+Note that Grunt won't detect these changes.
+
 ## Release
 
 Change version in `package.json`.
