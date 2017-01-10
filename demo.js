@@ -9,7 +9,6 @@ var coinify;
 
 var delegate = {
   save: () => {
-    console.log('Save called:', JSON.stringify(coinify));
     return Promise.resolve();
   },
   email: () => email,
@@ -64,7 +63,7 @@ if (process.env.OFFLINE_TOKEN) {
         console.log(`Trade ${ trade.id } for ${ trade.inAmount } on ${ trade.createdAt }`);
       }
     } else {
-      console.log('No trades foudns');
+      console.log('No trades found');
     }
 
     console.log('Get quote for €10.00 worth of Bitcoin');
@@ -116,11 +115,3 @@ if (process.env.OFFLINE_TOKEN) {
     });
   })
 }
-
-
-
-
-
-
-
-// delegate.save()
