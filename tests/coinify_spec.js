@@ -38,11 +38,12 @@ CoinifyKYC.fetchAll = () =>
 ;
 CoinifyKYC.trigger = () => Promise.resolve();
 
-let ExchangeDelegate = () =>
-  ({
-    save () { return Promise.resolve(); }
-  })
-;
+let delegate = {
+  save () { return Promise.resolve(); },
+  getEmailToken: () => {}
+};
+
+let ExchangeDelegate = () => delegate;
 
 let stubs = {
   './api': API,
@@ -66,12 +67,12 @@ describe('Coinify', function () {
   describe('class', function () {
     describe('new Coinify()', function () {
       it('should transform an Object to a Coinify', function () {
-        c = new Coinify({auto_login: true}, {});
+        c = new Coinify({auto_login: true}, delegate);
         expect(c.constructor.name).toEqual('Coinify');
       });
 
       it('should use fields', function () {
-        c = new Coinify({auto_login: true}, {});
+        c = new Coinify({auto_login: true}, delegate);
         expect(c._auto_login).toEqual(true);
       });
 
@@ -84,14 +85,14 @@ describe('Coinify', function () {
         c = new Coinify({
           auto_login: true,
           trades: [{}]
-        }, {});
+        }, delegate);
         expect(c.trades.length).toEqual(1);
       });
     });
 
     describe('Coinify.new()', function () {
       it('sets autoLogin to true', function () {
-        c = Coinify.new({});
+        c = Coinify.new(delegate);
         expect(c._auto_login).toEqual(true);
       });
 
@@ -147,7 +148,7 @@ describe('Coinify', function () {
         auto_login: true
       };
 
-      let p = new Coinify(obj, {});
+      let p = new Coinify(obj, delegate);
 
       it('should serialize the right fields', function () {
         let json = JSON.stringify(p, null, 2);
@@ -166,7 +167,7 @@ describe('Coinify', function () {
 
       it('should hold: fromJSON . toJSON = id', function () {
         let json = JSON.stringify(c, null, 2);
-        let b = new Coinify(JSON.parse(json), {});
+        let b = new Coinify(JSON.parse(json), delegate);
         expect(json).toEqual(JSON.stringify(b, null, 2));
       });
 
