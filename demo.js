@@ -97,27 +97,31 @@ if (process.env.OFFLINE_TOKEN) {
   coinify = Coinify.new(delegate);
   coinify.partnerId = 19;
   coinify.debug = true;
-  delegate.trades = coinify.trades;
 
   var walletIdentifier;
   var sharedKey;
   var email;
 
-  console.log('Please create a Blockchain wallet with a unique email and verify your email');
-  console.log('Get the wallet identifier: Blockchain.MyWallet.wallet.guid');
-  console.log('Get the shared key: Blockchain.MyWallet.wallet.sharedKey');
+  console.log('Get quote for €10 without logging in:');
+  coinify.getBuyQuote(10 * 100, 'EUR', 'BTC').then((quote) => {
+    console.log(`${quote.quoteAmount / 100000000} ${quote.quoteCurrency} expires ${quote.expiresAt}\n`);
 
-  prompt.get(['email', 'walletIdentifier', 'sharedKey'], function (err, result) {
-    if (err) {
-      // Ignore
-    }
-    email = result.email;
-    walletIdentifier = result.walletIdentifier;
-    sharedKey = result.sharedKey;
+    console.log('Please create a Blockchain wallet with a unique email and verify your email');
+    console.log('Get the wallet identifier: Blockchain.MyWallet.wallet.guid');
+    console.log('Get the shared key: Blockchain.MyWallet.wallet.sharedKey');
 
-    coinify.signup('NL', 'EUR').then(() => {
-      console.log('To continue the demo with this Coinify account:');
-      console.log(`OFFLINE_TOKEN=${coinify._offlineToken} node demo.js`);
+    prompt.get(['email', 'walletIdentifier', 'sharedKey'], function (err, result) {
+      if (err) {
+        // Ignore
+      }
+      email = result.email;
+      walletIdentifier = result.walletIdentifier;
+      sharedKey = result.sharedKey;
+
+      coinify.signup('NL', 'EUR').then(() => {
+        console.log('To continue the demo with this Coinify account:');
+        console.log(`OFFLINE_TOKEN=${coinify._offlineToken} node demo.js`);
+      });
     });
   });
 }

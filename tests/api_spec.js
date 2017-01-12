@@ -15,8 +15,8 @@ describe('Coinify API', function () {
   describe('class', () =>
     describe('new API()', () =>
       it('should have a root URL', function () {
-        api = new API();
-        expect(api._rootURL).toBeDefined();
+        api = new API('https://root.url');
+        expect(api._rootURL).toEqual('https://root.url');
       })
     )
   );
@@ -37,34 +37,6 @@ describe('Coinify API', function () {
           expect(api.hasAccount).toEqual(true);
         })
       );
-
-      describe('isLoggedIn', function () {
-        beforeEach(function () {
-          api._access_token = 'access_token';
-          api._loginExpiresAt = new Date(new Date().getTime() + 100000);
-        });
-
-        it('checks if there is an access token', function () {
-          expect(api.isLoggedIn).toEqual(true);
-
-          api._access_token = undefined;
-          expect(api.isLoggedIn).toEqual(false);
-        });
-
-        it("checks if the token hasn't expired", function () {
-          expect(api.isLoggedIn).toEqual(true);
-
-          api._loginExpiresAt = new Date(new Date().getTime() - 100000);
-          expect(api.isLoggedIn).toEqual(false);
-        });
-
-        it('should be a few seconds on the safe side', function () {
-          expect(api.isLoggedIn).toEqual(true);
-
-          api._loginExpiresAt = new Date(new Date().getTime());
-          expect(api.isLoggedIn).toEqual(false);
-        });
-      });
     });
 
     describe('login', function () {
@@ -100,7 +72,7 @@ describe('Coinify API', function () {
       });
 
       it('should store the access token', function (done) {
-        let checks = () => expect(api._access_token).toEqual('access-token');
+        let checks = () => expect(api._accessToken).toEqual('access-token');
 
         let promise = api.login().then(checks);
         expect(promise).toBeResolved(done);
@@ -157,13 +129,6 @@ describe('Coinify API', function () {
           });
         });
 
-        it('should not login again if access token is valid', function () {
-          api.authGET('/trades');
-          api.authPOST('/trades');
-          api.authPATCH('/trades');
-          expect(api.login).not.toHaveBeenCalled();
-        });
-
         it('should refuse if no offline token is present for GET', function () {
           api._access_token = null;
           api._offlineToken = null;
@@ -211,33 +176,6 @@ describe('Coinify API', function () {
           api.authGET('/trades');
           expect(api.login).toHaveBeenCalled();
         });
-
-        describe('GET', () =>
-          it('should make a GET request', function () {
-            api.authGET('/trades');
-            expect(api._request).toHaveBeenCalled();
-            expect(api._request.calls.argsFor(0)[0]).toEqual('GET');
-            expect(api._request.calls.argsFor(0)[3]).toEqual(true);
-          })
-        );
-
-        describe('POST', () =>
-          it('should make a POST request', function () {
-            api.authPOST('/trades');
-            expect(api._request).toHaveBeenCalled();
-            expect(api._request.calls.argsFor(0)[0]).toEqual('POST');
-            expect(api._request.calls.argsFor(0)[3]).toEqual(true);
-          })
-        );
-
-        describe('PATCH', () =>
-          it('should make a PATCH request', function () {
-            api.authPATCH('/trades');
-            expect(api._request).toHaveBeenCalled();
-            expect(api._request.calls.argsFor(0)[0]).toEqual('PATCH');
-            expect(api._request.calls.argsFor(0)[3]).toEqual(true);
-          })
-        );
       });
     });
   });

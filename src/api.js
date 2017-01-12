@@ -2,18 +2,13 @@ var assert = require('assert');
 var Exchange = require('bitcoin-exchange-client');
 
 class API extends Exchange.API {
-  constructor () {
-    super();
+  constructor (rootUrl) {
+    super({accessTokenBased: true});
     this._offlineToken = null;
-    this._rootURL = 'https://app-api.coinify.com/';
+    this._rootURL = rootUrl;
     this._loginExpiresAt = null;
   }
 
-  get isLoggedIn () {
-    // Debug: + 60 * 19 * 1000 expires the login after 1 minute
-    var tenSecondsFromNow = new Date(new Date().getTime() + 10000);
-    return Boolean(this._access_token) && this._loginExpiresAt > tenSecondsFromNow;
-  }
   get offlineToken () { return this._offlineToken; }
   get hasAccount () { return Boolean(this.offlineToken); }
 
@@ -24,7 +19,7 @@ class API extends Exchange.API {
       assert(self._offlineToken, 'Offline token required');
 
       var loginSuccess = function (res) {
-        self._access_token = res.access_token;
+        self._accessToken = res.access_token;
         self._loginExpiresAt = new Date(new Date().getTime() + res.expires_in * 1000);
         resolve();
       };
@@ -42,53 +37,15 @@ class API extends Exchange.API {
   }
 
   _request (method, endpoint, data, authorized) {
-    assert(!authorized || this.isLoggedIn, "Can't make authorized request if not logged in");
-
     var url = this._rootURL + endpoint;
 
     var headers = {};
 
     if (authorized) {
-      headers['Authorization'] = 'Bearer ' + this._access_token;
+      headers['Authorization'] = 'Bearer ' + this._accessToken;
     }
 
-    return super._request(method, url, data, headers);
-  }
-
-  _authRequest (method, endpoint, data) {
-    var doRequest = function () {
-      return this._request(method, endpoint, data, true);
-    };
-
-    if (this.isLoggedIn) {
-      return doRequest.bind(this)();
-    } else {
-      return this.login().then(doRequest.bind(this));
-    }
-  }
-
-  GET (endpoint, data) {
-    return this._request('GET', endpoint, data);
-  }
-
-  authGET (endpoint, data) {
-    return this._authRequest('GET', endpoint, data);
-  }
-
-  POST (endpoint, data) {
-    return this._request('POST', endpoint, data);
-  }
-
-  authPOST (endpoint, data) {
-    return this._authRequest('POST', endpoint, data);
-  }
-
-  PATCH (endpoint, data) {
-    return this._request('PATCH', endpoint, data);
-  }
-
-  authPATCH (endpoint, data) {
-    return this._authRequest('PATCH', endpoint, data);
+    return super._request(method, url, data, headers, authorized);
   }
 }
 
