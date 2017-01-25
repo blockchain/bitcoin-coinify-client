@@ -13,7 +13,7 @@ var delegate = {
   },
   email: () => email,
   isEmailVerified: () => true,
-  getEmailToken: () => {
+  getToken: () => {
     console.log('Obtaining signed email token from Blockchain.info');
     let url = `https://blockchain.info/wallet/signed-token?fields=email|wallet_age&guid=${walletIdentifier}&sharedKey=${sharedKey}`;
 

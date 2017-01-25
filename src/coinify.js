@@ -13,7 +13,7 @@ class Coinify extends Exchange.Exchange {
   constructor (object, delegate) {
     super(delegate, Trade, Quote, PaymentMedium);
 
-    assert(delegate.getEmailToken, 'delegate.getEmailToken() required');
+    assert(delegate.getToken, 'delegate.getToken() required');
 
     var obj = object || {};
     this._partner_id = null;
@@ -122,8 +122,12 @@ class Coinify extends Exchange.Exchange {
       return this._delegate.save.bind(this._delegate)().then(function () { return res; });
     };
 
+    var getToken = function () {
+      return this.delegate.getToken.bind(this.delegate)('coinify', {walletAge: true});
+    };
+
     return Promise.resolve().then(runChecks.bind(this))
-                            .then(this.delegate.getEmailToken.bind(this.delegate))
+                            .then(getToken.bind(this))
                             .then(doSignup.bind(this))
                             .then(saveMetadata.bind(this));
   }

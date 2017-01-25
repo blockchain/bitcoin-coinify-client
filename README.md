@@ -14,7 +14,7 @@ Three things are needed:
  * save() -> e.g. `function () { return JSON.stringify(this._coinify);` }
  * `email()` -> String : the users email address
  * `isEmailVerified()` -> Boolean : whether the users email is verified
- * `getEmailToken()` -> stringify : JSON web token {email: 'me@example.com'}
+ * `getToken()` -> stringify : JSON web token {email: 'me@example.com'}
  * `monitorAddress(address, callback)` : `callback(amount)` if btc received
  * `checkAddress(address)` : look for existing transaction at address
  * `getReceiveAddress(trade)` : return the trades receive address

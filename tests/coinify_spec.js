@@ -40,7 +40,7 @@ CoinifyKYC.trigger = () => Promise.resolve();
 
 let delegate = {
   save () { return Promise.resolve(); },
-  getEmailToken: () => {}
+  getToken: () => {}
 };
 
 let ExchangeDelegate = () => delegate;
@@ -105,7 +105,7 @@ describe('Coinify', function () {
       c = Coinify.new({
         email () { return 'info@blockchain.com'; },
         isEmailVerified () { return true; },
-        getEmailToken () { return 'json-web-token'; },
+        getToken () { return 'json-web-token'; },
         save () { return Promise.resolve(); }
       });
       c.partnerId = 18;
