@@ -14,9 +14,9 @@ describe('Coinify API', function () {
 
   describe('class', () =>
     describe('new API()', () =>
-      it('should have a root URL', function () {
+      it('should have a null _offlineToken', function () {
         api = new API();
-        expect(api._rootURL).toBeDefined();
+        expect(api._offlineToken).toEqual(null);
       })
     )
   );
