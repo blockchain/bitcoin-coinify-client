@@ -41,6 +41,7 @@ class API extends Exchange.API {
   }
 
   _url (endpoint) {
+    endpoint = endpoint || '';
     return `https://app-api${this._testnet ? '.sandbox' : ''}.coinify.com/${endpoint}`;
   }
 

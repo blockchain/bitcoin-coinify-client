@@ -67,6 +67,21 @@ describe('Coinify API', function () {
       });
     });
 
+    describe('_url', () => {
+      it('should use app-api.coinify.com by default', () => {
+        expect(api._url()).toEqual('https://app-api.coinify.com/');
+      });
+
+      it('should use sandbox for testnet', () => {
+        api._testnet = true;
+        expect(api._url()).toEqual('https://app-api.sandbox.coinify.com/');
+      });
+
+      it('should include the endpoint', () => {
+        expect(api._url('endpoint')).toEqual('https://app-api.coinify.com/endpoint');
+      });
+    });
+
     describe('login', function () {
       beforeEach(function () {
         api._user = 'user-1';
