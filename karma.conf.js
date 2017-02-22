@@ -13,7 +13,7 @@ module.exports = function (config) {
     logLevel: config.LOG_WARN,
 
     client: {
-      captureConsole: true
+      captureConsole: false
     },
 
     autoWatch: true,

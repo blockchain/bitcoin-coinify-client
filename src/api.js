@@ -5,7 +5,6 @@ class API extends Exchange.API {
   constructor () {
     super();
     this._offlineToken = null;
-    this._rootURL = 'https://app-api.coinify.com/';
     this._loginExpiresAt = null;
   }
 
@@ -41,10 +40,13 @@ class API extends Exchange.API {
     return promise;
   }
 
+  _url (endpoint) {
+    endpoint = endpoint || '';
+    return `https://app-api${this._testnet ? '.sandbox' : ''}.coinify.com/${endpoint}`;
+  }
+
   _request (method, endpoint, data, authorized) {
     assert(!authorized || this.isLoggedIn, "Can't make authorized request if not logged in");
-
-    var url = this._rootURL + endpoint;
 
     var headers = {};
 
@@ -52,7 +54,7 @@ class API extends Exchange.API {
       headers['Authorization'] = 'Bearer ' + this._access_token;
     }
 
-    return super._request(method, url, data, headers);
+    return super._request(method, this._url(endpoint), data, headers);
   }
 
   _authRequest (method, endpoint, data) {

@@ -14,9 +14,9 @@ describe('Coinify API', function () {
 
   describe('class', () =>
     describe('new API()', () =>
-      it('should have a root URL', function () {
+      it('should have a null _offlineToken', function () {
         api = new API();
-        expect(api._rootURL).toBeDefined();
+        expect(api._offlineToken).toEqual(null);
       })
     )
   );
@@ -64,6 +64,21 @@ describe('Coinify API', function () {
           api._loginExpiresAt = new Date(new Date().getTime());
           expect(api.isLoggedIn).toEqual(false);
         });
+      });
+    });
+
+    describe('_url', () => {
+      it('should use app-api.coinify.com by default', () => {
+        expect(api._url()).toEqual('https://app-api.coinify.com/');
+      });
+
+      it('should use sandbox for testnet', () => {
+        api._testnet = true;
+        expect(api._url()).toEqual('https://app-api.sandbox.coinify.com/');
+      });
+
+      it('should include the endpoint', () => {
+        expect(api._url('endpoint')).toEqual('https://app-api.coinify.com/endpoint');
       });
     });
 
