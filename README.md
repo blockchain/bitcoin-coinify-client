@@ -74,4 +74,11 @@ git commit -a -m "v0.1.0"
 git push
 git tag -s v0.1.0
 git push --tags
+make changelog
+```
+
+Add the relevant sections of Changelog.md to the tag on Github and mark it as pre-release.
+
+```sh
+npm publish
 ```

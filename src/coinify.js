@@ -123,9 +123,7 @@ class Coinify extends Exchange.Exchange {
     };
 
     var getToken = function () {
-      // Coinify doesn't support "partner" param yet
-      // return this.delegate.getToken.bind(this.delegate)('coinify', {walletAge: true});
-      return this.delegate.getToken.bind(this.delegate)(null, {walletAge: true});
+      return this.delegate.getToken.bind(this.delegate)('coinify', {walletAge: true});
     };
 
     return Promise.resolve().then(runChecks.bind(this))
