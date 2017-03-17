@@ -6,8 +6,10 @@
     "type": "git",
     "url": "https://github.com/blockchain/bitcoin-coinify-client.git"
   },
-  "main": "index.js",
+  "main": "lib/index.js",
+  "module": "src/index.js",
   "scripts": {
+    "prepublish": "node_modules/.bin/babel src --presets babel-preset-es2015 --out-dir lib",
     "test": "./node_modules/karma/bin/karma start karma.conf.js"
   },
   "keywords": [
@@ -32,6 +34,7 @@
     "babelify": "7.3.*"
   },
   "devDependencies": {
+    "babel-cli": "~6.24.0",
     "browserify": "13.*",
     "browserify-istanbul": "2.0.*",
     "coveralls": "^2.11.14",
