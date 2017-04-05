@@ -92,6 +92,11 @@ class API extends Exchange.API {
   authPATCH (endpoint, data) {
     return this._authRequest('PATCH', endpoint, data);
   }
+
+  DELETE (endpoint, data) {
+    return this._authRequest('DELETE', endpoint, data);
+  }
+
 }
 
 module.exports = API;

@@ -77,6 +77,14 @@ class Trade extends Exchange.Trade {
       this._outAmountExpected = Helpers.toSatoshi(obj.outAmountExpected);
     }
 
+    // for sell trades - need bank info
+    if (obj.transferIn) {
+      if (obj.transferIn.medium === 'blockchain') {
+        this._bankName = obj.transferOut.details.bank.name;
+        this._bankAccountNumber = obj.transferOut.details.account.number;
+      }
+    }
+
     if (obj.confirmed === Boolean(obj.confirmed)) {
       this._delegate.deserializeExtraFields(obj, this);
       this._receiveAddress = this._delegate.getReceiveAddress(this);
@@ -107,7 +115,6 @@ class Trade extends Exchange.Trade {
         this._iSignThisID = obj.transferIn.details.paymentId;
       }
     }
-
     return this;
   }
 
