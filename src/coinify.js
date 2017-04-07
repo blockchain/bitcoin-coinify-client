@@ -194,7 +194,6 @@ class Coinify extends Exchange.Exchange {
 
   sell (quote, bank) {
     assert(quote, 'Quote is required');
-    assert(quote.expiresAt > new Date(), 'QUOTE_EXPIRED');
 
     const sellData = {
       priceQuoteId: quote.id,
