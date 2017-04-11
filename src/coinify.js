@@ -6,7 +6,6 @@ var PaymentMedium = require('./payment-medium');
 var ExchangeRate = require('./exchange-rate');
 var Quote = require('./quote');
 var API = require('./api');
-var BankAction = require('./bank');
 
 var assert = require('assert');
 
@@ -43,8 +42,6 @@ class Coinify extends Exchange.Exchange {
     this._kycs = [];
 
     this.exchangeRate = new ExchangeRate(this._api);
-
-    this._bankAction = new BankAction(this._api, delegate);
   }
 
   get profile () {

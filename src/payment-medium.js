@@ -84,45 +84,30 @@ class PaymentMedium extends ExchangePaymentMedium {
     });
   }
 
-  sell () {
-    // console.log('called sell', this)
-
-    const sellData = {
-      priceQuoteId: this._quote._id,
-      transferIn: {
-        medium: 'blockchain'
-      },
-      transferOut: {
-        medium: 'bank',
-        mediumReceiveAccountId: this._bankId
-      }
-    };
-    console.log('sellData', sellData);
-    // return this._api.authPOST('trades', sellData);
+  static getSellAccounts (api, quote) {
+    return PaymentAccount.getAll(api, quote).then(accounts => {
+      this._accounts = accounts;
+      return accounts;
+    });
   }
 
-  static getSellAccounts (api, quote) {
-    var sellAccounts = [];
-    var setSellParams = function (obj) {
-      obj['inMedium'] = 'blockchain';
-      obj['outMedium'] = 'bank';
-      obj['inCurrency'] = 'BTC';
-      obj['outCurrency'] = obj.account.currency;
-      obj['bankId'] = obj.id;
-      obj['bankAccount'] = obj;
-    };
-    return api.authGET('bank-accounts')
-      .then(res => {
-        console.log('res', res)
-        let output = {};
-        for (var i = 0; i < res.length; i++) {
-          setSellParams(res[i]);
-          let medium = new PaymentMedium(res[i], api, quote);
-          output[medium.outMedium] = medium;
-          sellAccounts.push(output);
-        }
-        return Promise.resolve(sellAccounts);
-      });
+  static addBankAccount (api, obj) {
+    return PaymentAccount.add(api, obj).then(account => {
+      this._accounts.push(account);
+      return account;
+    });
+  }
+
+  deleteBankAccount (api, id) {
+    console.log('delete called');
+    return PaymentAccount.deleteOne(api, id).then(res => {
+      // successful deletion returns undefined
+      if (res === undefined) {
+        const updatedAccounts = this._accounts.filter(acc => acc.id !== id);
+        this._accounts = updatedAccounts;
+        return;
+      }
+    });
   }
 }
 

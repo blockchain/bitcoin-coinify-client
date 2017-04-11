@@ -1,10 +1,13 @@
 var ExchangePaymentAccount = require('bitcoin-exchange-client').PaymentAccount;
 var Trade = require('./trade');
+var assert = require('assert');
+
 
 class PaymentAccount extends ExchangePaymentAccount {
-  constructor (api, medium, quote) {
+  constructor (api, medium, quote, account) {
     super(api, medium, quote, Trade);
     this._fiatMedium = medium;
+    this._account = account;
   }
 
   buy () {
@@ -14,58 +17,67 @@ class PaymentAccount extends ExchangePaymentAccount {
     });
   }
 
-  static add (api, obj) {
-    // assert(obj.account.currency, 'Currency required');
-    // assert(obj.holder.name, 'Bank account holder name required');
-    // assert(obj.holder.address.country, 'Bank country required');
-    // assert(obj.account.number, 'IBAN required');
+  sell () {
+    console.log('called sell', this);
+    const sellData = {
+      priceQuoteId: this._quote._id,
+      transferIn: {
+        medium: 'blockchain'
+      },
+      transferOut: {
+        medium: 'bank',
+        mediumReceiveAccountId: this._account.id
+      }
+    };
+    console.log('sell payload', sellData);
+    return this._api.authPOST('trades', sellData);
+  }
 
+  static add (api, obj) {
     const b = {
       account: {
-        currency: obj.currency,
-        bic: obj.bic,
-        number: obj.number
+        currency: obj.account.currency,
+        bic: obj.account.bic,
+        number: obj.account.number
       },
       holder: {
-        name: obj._holder_name,
+        name: obj.holder.name,
         address: {
-          street: obj._holder_address._street,
-          city: obj._holder_address._city,
-          zipcode: obj._holder_address._zipcode,
-          country: obj._holder_address._country
+          street: obj.holder.address.street,
+          city: obj.holder.address.city,
+          zipcode: obj.holder.address.zipcode,
+          country: obj.holder.address.country
         }
       },
       bank: {
         // name: obj.bank.name || null,
         address: {
-          country: obj._bank_address._country,
-          street: obj._bank_address._street || null,
-          zipcode: obj._bank_address._zipcode || null,
-          city: obj._bank_address._city || null
+          country: obj.bank.address.country,
+          street: obj.bank.address.street || null,
+          zipcode: obj.bank.address._ipcode || null,
+          city: obj.bank.address.city || null
         }
       }
     };
-    return api.authPOST('bank-accounts', b).then((res) => {
-      return new PaymentAccount(res, api);
-    });;
+    return api.authPOST('bank-accounts', b).then(res => {
+      return new PaymentAccount(api, undefined, undefined, res);
+    });
   }
 
   static getAll (api, quote) {
     return api.authGET('bank-accounts').then((accounts) => {
       let accountsObj = [];
       for (let account of accounts) {
-        accountsObj.push(new PaymentAccount(account, api, quote));
+        accountsObj.push(new PaymentAccount(api, undefined, quote, account));
       }
       return accountsObj;
     });
   }
 
-  static deleteOne (api, id) {
-    assert(id, 'bankAccount ID required');
-    return api.DELETE(`bank-accounts/${id}`);
-  };
-}
-
+  deleteOne (api) {
+    const id = this._account.id;
+    return this._api.DELETE(`bank-accounts/${id}`).then(res => console.log('delete should return undefined:', res));
+  }
 }
 
 module.exports = PaymentAccount;

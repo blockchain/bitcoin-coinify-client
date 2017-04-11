@@ -1,8 +1,5 @@
 var Coinify = require('./src/coinify');
 var fetch = require('isomorphic-fetch');
-var BankAccount = require('./src/bank-account');
-var Bank = require('./src/bank');
-var API = require('./src/api');
 var prompt = require('prompt');
 
 var delegate = {
@@ -40,18 +37,18 @@ var delegate = {
   deserializeExtraFields: (obj, trade) => {}
 };
 
-coinify = new Coinify({
+var coinify = new Coinify({
   user: 'some_user_id',
   offline_token: 'ID554MPxw0372FYQOKIwuhhiO0TMArwq1RQo2/joP2IgCTJU3Le7TUWxki6A9BLJ',
   auto_login: true,
   trades: []
 }, delegate);
 
-var b = new BankAccount({
+var b = {
   account: {
-    currency: 'EUR',
-    number: 12345,
-    bic: 123
+    currency: 'GBP',
+    number: 'GB29 NWBK 6016 1331 9268 19',
+    bic: 'NWBK'
   },
   bank: {
     name: null,
@@ -64,13 +61,11 @@ var b = new BankAccount({
     address: {
       country: 'GB',
       street: '123 dereham',
-      zip: '12345',
+      zipcode: '12345',
       city: 'london'
     }
   }
-});
-
-// var accounts = coinify.bank.getAll().then((result) => console.log('ACCOUNTS', result));
+};
 
 // ----- GET TRADES ----- //
 // /*
@@ -86,38 +81,24 @@ var b = new BankAccount({
 // ----- GET PROFILE ----- //
 // var profile = coinify.fetchProfile().then((profile) => console.log(`**PROFILE** Email: ${profile.email}, level: ${profile.level.name}, bank inRemaining: ${profile.currentLimits.bank.inRemaining}`))
 
-// ----- GET SELL CURRENCIES ----- //
 
-// var currencies = coinify.getSellCurrencies().then((curr) => console.log(`**CURRENCIES** ${curr}`))
-
-
-
-// coinify.getSellQuote(100000, 'EUR', 'BTC')
-//   .then(quote => {
-//     console.log(`${quote.quoteAmount / -100000000} ${quote.quoteCurrency} for ${quote.baseAmount / 100} ${quote.baseCurrency} expires ${quote.expiresAt}`);
-//
-//     quote.getSellPaymentMediums().then(accounts => {
-//       if (accounts === []) {
-//         // create bank account
-//         var userBank = new BankAccount()
-//       }
-//     })
-//   })
-
-
-
-
-coinify.getSellQuote(100000, 'EUR', 'BTC')
+// ----- FLOW START TO FINISH ----- //
+coinify.getSellQuote(100000, 'GBP', 'BTC')
   .then(quote => {
     console.log(`${quote.quoteAmount / -100000000} ${quote.quoteCurrency} for ${quote.baseAmount / 100} ${quote.baseCurrency} expires ${quote.expiresAt}`);
 
-    quote.getSellPaymentMediums().then(paymentMediums => {
-      // console.log('paymentMediums', paymentMediums);
-
-      paymentMediums[0].bank.sell().then(sellResult => {
+    quote.getSellPaymentMediums().then(paymentAccounts => {
+      console.log('paymentAccounts', paymentAccounts);
+      // paymentAccounts[0].deleteOne();
+      // if (!paymentAccounts.length) {
+      //   console.log('no paymentAccounts');
+      //   // add bank account
+      //   quote.addSellPaymentMedium(b).then(res => {
+      //     console.log('added bank', res);
+      //   });
+      // }
+      paymentAccounts[0].sell().then(sellResult => {
         console.log('result of sell', sellResult);
       });
     });
   });
-
-// var createBank = coinify.bank.create(bank).then((res) => console.log(res))
