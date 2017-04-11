@@ -39,6 +39,7 @@ class PaymentMedium extends ExchangePaymentMedium {
     this._outPercentageFee = obj.outPercentageFee;
 
     this._bankId = obj.bankId;
+    this._bankAccount = obj.bankAccount;
 
     if (quote) {
       let amt = quote.baseCurrency === 'BTC' ? quote.quoteAmount : quote.baseAmount;
@@ -84,7 +85,7 @@ class PaymentMedium extends ExchangePaymentMedium {
   }
 
   sell () {
-    console.log('called sell', this._quote._id, this._quote._paymentMediums.bank._bankId)
+    // console.log('called sell', this)
 
     const sellData = {
       priceQuoteId: this._quote._id,
@@ -93,7 +94,7 @@ class PaymentMedium extends ExchangePaymentMedium {
       },
       transferOut: {
         medium: 'bank',
-        mediumReceiveAccountId: this._quote._paymentMediums.bank._bankId
+        mediumReceiveAccountId: this._bankId
       }
     };
     console.log('sellData', sellData);
@@ -101,23 +102,26 @@ class PaymentMedium extends ExchangePaymentMedium {
   }
 
   static getSellAccounts (api, quote) {
-    var output = [];
+    var sellAccounts = [];
     var setSellParams = function (obj) {
       obj['inMedium'] = 'blockchain';
       obj['outMedium'] = 'bank';
       obj['inCurrency'] = 'BTC';
       obj['outCurrency'] = obj.account.currency;
       obj['bankId'] = obj.id;
+      obj['bankAccount'] = obj;
     };
     return api.authGET('bank-accounts')
       .then(res => {
-        output = {};
+        console.log('res', res)
+        let output = {};
         for (var i = 0; i < res.length; i++) {
           setSellParams(res[i]);
           let medium = new PaymentMedium(res[i], api, quote);
           output[medium.outMedium] = medium;
+          sellAccounts.push(output);
         }
-        return Promise.resolve(output);
+        return Promise.resolve(sellAccounts);
       });
   }
 }

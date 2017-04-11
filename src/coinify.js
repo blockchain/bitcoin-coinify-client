@@ -6,7 +6,7 @@ var PaymentMedium = require('./payment-medium');
 var ExchangeRate = require('./exchange-rate');
 var Quote = require('./quote');
 var API = require('./api');
-var Bank = require('./bank');
+var BankAction = require('./bank');
 
 var assert = require('assert');
 
@@ -44,7 +44,7 @@ class Coinify extends Exchange.Exchange {
 
     this.exchangeRate = new ExchangeRate(this._api);
 
-    this._bank = new Bank(this._api, delegate);
+    this._bankAction = new BankAction(this._api, delegate);
   }
 
   get profile () {
@@ -194,7 +194,6 @@ class Coinify extends Exchange.Exchange {
 
   sell (quote, bank) {
     assert(quote, 'Quote is required');
-    assert(quote.expiresAt > new Date(), 'QUOTE_EXPIRED');
 
     const sellData = {
       priceQuoteId: quote.id,

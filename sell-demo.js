@@ -1,6 +1,7 @@
 var Coinify = require('./src/coinify');
 var fetch = require('isomorphic-fetch');
 var BankAccount = require('./src/bank-account');
+var Bank = require('./src/bank');
 var API = require('./src/api');
 var prompt = require('prompt');
 
@@ -46,9 +47,30 @@ coinify = new Coinify({
   trades: []
 }, delegate);
 
-// var accounts = coinify.bank.getAll().then((result) => console.log('ACCOUNTS', result))
+var b = new BankAccount({
+  account: {
+    currency: 'EUR',
+    number: 12345,
+    bic: 123
+  },
+  bank: {
+    name: null,
+    address: {
+      country: 'GB'
+    }
+  },
+  holder: {
+    name: 'pw',
+    address: {
+      country: 'GB',
+      street: '123 dereham',
+      zip: '12345',
+      city: 'london'
+    }
+  }
+});
 
-// var singleAccount = coinify.bank.getOne(10250).then((res) => console.log('res', res))
+// var accounts = coinify.bank.getAll().then((result) => console.log('ACCOUNTS', result));
 
 // ----- GET TRADES ----- //
 // /*
@@ -68,82 +90,34 @@ coinify = new Coinify({
 
 // var currencies = coinify.getSellCurrencies().then((curr) => console.log(`**CURRENCIES** ${curr}`))
 
-// ----- GET SELL QUOTE ----- //
+
+
+// coinify.getSellQuote(100000, 'EUR', 'BTC')
+//   .then(quote => {
+//     console.log(`${quote.quoteAmount / -100000000} ${quote.quoteCurrency} for ${quote.baseAmount / 100} ${quote.baseCurrency} expires ${quote.expiresAt}`);
+//
+//     quote.getSellPaymentMediums().then(accounts => {
+//       if (accounts === []) {
+//         // create bank account
+//         var userBank = new BankAccount()
+//       }
+//     })
+//   })
+
+
+
 
 coinify.getSellQuote(100000, 'EUR', 'BTC')
   .then(quote => {
-    console.log(`${quote.quoteAmount / -100000000} ${quote.quoteCurrency} expires ${quote.expiresAt}`);
+    console.log(`${quote.quoteAmount / -100000000} ${quote.quoteCurrency} for ${quote.baseAmount / 100} ${quote.baseCurrency} expires ${quote.expiresAt}`);
 
     quote.getSellPaymentMediums().then(paymentMediums => {
       // console.log('paymentMediums', paymentMediums);
-      // console.log(paymentMediums.bank._quote._id)
-      // next step should be
-      // bank account choice.sell
-      paymentMediums.bank.sell();
+
+      paymentMediums[0].bank.sell().then(sellResult => {
+        console.log('result of sell', sellResult);
+      });
     });
   });
 
-// ----- BANK ACCOUNT STUFF ----- //
-// /*
-var bank = {
-  account: {
-    currency: 'USD',
-    bic: '12345',
-    number: '6789'
-  },
-  holder: {
-    name: 'phil',
-    address: {
-      street: '1 blockchain ave',
-      city: 'bitville',
-      zipcode: '12345',
-      country: 'FR'
-    }
-  },
-  bank: {
-    name: 'bank of blockchain',
-    address: {
-      country: 'FR'
-    }
-  }
-};
-
 // var createBank = coinify.bank.create(bank).then((res) => console.log(res))
-
-// ----- CREATE SELL TRADE ----- //
-
-// console.log(`**BANK** Account: ${bank.currency}, holder: ${bank.holderName}, bankName: ${bank.bankName}`)
-
-// console.log('coinify offline token', coinify._offlineToken)
-
-/*
-prompt.get(['currency'], function (err, res) {
-  console.log('res', res)
-  var sellQuote = coinify.getSellQuote(-25000000, 'BTC', res.currency)
-  // var createBank = coinify.bank.create(bank)
-  var getOneBank = coinify.bank.getOne(10250)
-  Promise.all([res, sellQuote, getOneBank])
-    .then(values => {
-      console.log('user input', values[0])
-      console.log('sell quote', values[1], values[1].id, values[1].quoteCurrency, values[1].quoteAmount, values[1].baseCurrency, values[1].baseAmount)
-      console.log('bank account', values[2].id, values[2].account.currency)
-      const data = {
-        currency: values[0].currency,
-        quote: values[1],
-        bank: values[2],
-        traderId: values[2].trader_id
-      }
-      return data;
-    })
-    .then(d => {
-      // console.log('dataForSell', d)
-      return coinify.sell(d.quote, d.bank, d.currency, d.quote.quoteAmount)
-    })
-    .then(result => {
-      console.log('RESULT FROM SELL', result)
-    })
-    .catch(err => {
-      console.log(':-O there was an error', err)
-    })
-})
-*/

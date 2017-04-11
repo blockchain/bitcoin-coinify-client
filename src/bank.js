@@ -2,57 +2,57 @@
 
 var assert = require('assert');
 
-module.exports = Bank;
+module.exports = BankAction;
 
-function Bank (api, delegate) {
+function BankAction (api, delegate, obj) {
   this._api = api;
   this._delegate = delegate;
 }
 
-Bank.prototype.create = function (bankObj) {
-  assert(bankObj.account.currency, 'Currency required');
-  assert(bankObj.holder.name, 'Bank account holder name required');
-  assert(bankObj.holder.address.country, 'Bank country required');
-  assert(bankObj.account.number, 'IBAN required');
+BankAction.prototype.create = function (obj) {
+  console.log('bankAction.create', obj);
+  // assert(obj.account.currency, 'Currency required');
+  // assert(obj.holder.name, 'Bank account holder name required');
+  // assert(obj.holder.address.country, 'Bank country required');
+  // assert(obj.account.number, 'IBAN required');
 
   const b = {
     account: {
-      currency: bankObj.account.currency,
-      bic: bankObj.account.bic,
-      number: bankObj.account.number
+      currency: obj.currency,
+      bic: obj.bic,
+      number: obj.number
     },
     holder: {
-      name: bankObj.holder.name,
+      name: obj._holder_name,
       address: {
-        street: bankObj.holder.address.street,
-        city: bankObj.holder.address.city,
-        zipcode: bankObj.holder.address.zipcode,
-        country: bankObj.holder.address.country,
-        state: bankObj.holder.address.state || null
+        street: obj._holder_address._street,
+        city: obj._holder_address._city,
+        zipcode: obj._holder_address._zipcode,
+        country: obj._holder_address._country
       }
     },
     bank: {
-      name: bankObj.bank.name || null,
+      // name: obj.bank.name || null,
       address: {
-        country: bankObj.bank.address.country,
-        street: bankObj.bank.address.street || null,
-        zipcode: bankObj.bank.address.zipcode || null,
-        city: bankObj.bank.address.city || null
+        country: obj._bank_address._country,
+        street: obj._bank_address._street || null,
+        zipcode: obj._bank_address._zipcode || null,
+        city: obj._bank_address._city || null
       }
     }
   };
   return this._api.authPOST('bank-accounts', b);
 };
-
-Bank.prototype.getAll = function () {
-  return this._api.authGET('bank-accounts');
-};
-
-Bank.prototype.getOne = function (id) {
-  return this._api.authGET(`bank-accounts/${id}`);
-};
-
-Bank.prototype.deleteOne = function (id) {
-  assert(id, 'bankAccount ID required');
-  return this._api.DELETE(`bank-accounts/${id}`);
-};
+//
+// Bank.prototype.getAll = function () {
+//   return this._api.authGET('bank-accounts');
+// };
+//
+// Bank.prototype.getOne = function (id) {
+//   return this._api.authGET(`bank-accounts/${id}`);
+// };
+//
+// Bank.prototype.deleteOne = function (id) {
+//   assert(id, 'bankAccount ID required');
+//   return this._api.DELETE(`bank-accounts/${id}`);
+// };
