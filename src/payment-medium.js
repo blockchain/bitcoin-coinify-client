@@ -84,29 +84,10 @@ class PaymentMedium extends ExchangePaymentMedium {
     });
   }
 
-  static getSellAccounts (api, quote) {
+  static getAccounts (api, quote) {
     return PaymentAccount.getAll(api, quote).then(accounts => {
       this._accounts = accounts;
       return accounts;
-    });
-  }
-
-  static addBankAccount (api, obj) {
-    return PaymentAccount.add(api, obj).then(account => {
-      this._accounts.push(account);
-      return account;
-    });
-  }
-
-  deleteBankAccount (api, id) {
-    console.log('delete called');
-    return PaymentAccount.deleteOne(api, id).then(res => {
-      // successful deletion returns undefined
-      if (res === undefined) {
-        const updatedAccounts = this._accounts.filter(acc => acc.id !== id);
-        this._accounts = updatedAccounts;
-        return;
-      }
     });
   }
 }

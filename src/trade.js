@@ -199,6 +199,20 @@ class Trade extends Exchange.Trade {
     return super.buy(quote, medium, request);
   }
 
+  static sell (quote, bank) {
+    console.log('called sell in bitcoin-coinify trade', quote, bank);
+    return quote.api.authPOST('trades', {
+      priceQuoteId: quote._id,
+      transferIn: {
+        medium: 'blockchain'
+      },
+      transferOut: {
+        medium: 'bank',
+        mediumReceiveAccountId: bank._account.id
+      }
+    });
+  }
+
   static fetchAll (api) {
     return api.authGET('trades');
   }

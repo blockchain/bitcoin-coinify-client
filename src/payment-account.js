@@ -17,23 +17,14 @@ class PaymentAccount extends ExchangePaymentAccount {
     });
   }
 
-  sell () {
-    console.log('called sell', this);
-    const sellData = {
-      priceQuoteId: this._quote._id,
-      transferIn: {
-        medium: 'blockchain'
-      },
-      transferOut: {
-        medium: 'bank',
-        mediumReceiveAccountId: this._account.id
-      }
-    };
-    console.log('sell payload', sellData);
-    return this._api.authPOST('trades', sellData);
+  sell (bank) {
+    return super.sell(bank).then(trade => {
+      console.log('returned trade', trade);
+      return trade;
+    });
   }
 
-  static add (api, obj) {
+  add (obj) {
     const b = {
       account: {
         currency: obj.account.currency,
@@ -59,23 +50,22 @@ class PaymentAccount extends ExchangePaymentAccount {
         }
       }
     };
-    return api.authPOST('bank-accounts', b).then(res => {
-      return new PaymentAccount(api, undefined, undefined, res);
+    return this._api.authPOST('bank-accounts', b).then(res => {
+      return new PaymentAccount(this._api, undefined, undefined, res);
     });
   }
 
-  static getAll (api, quote) {
-    return api.authGET('bank-accounts').then((accounts) => {
+  getAll (quote) {
+    return this._api.authGET('bank-accounts').then((accounts) => {
       let accountsObj = [];
       for (let account of accounts) {
-        accountsObj.push(new PaymentAccount(api, undefined, quote, account));
+        accountsObj.push(new PaymentAccount(this._api, undefined, quote, account));
       }
       return accountsObj;
     });
   }
 
-  deleteOne (api) {
-    const id = this._account.id;
+  delete (id) {
     return this._api.DELETE(`bank-accounts/${id}`).then(res => console.log('delete should return undefined:', res));
   }
 }

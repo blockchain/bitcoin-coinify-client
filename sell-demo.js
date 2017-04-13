@@ -81,24 +81,30 @@ var b = {
 // ----- GET PROFILE ----- //
 // var profile = coinify.fetchProfile().then((profile) => console.log(`**PROFILE** Email: ${profile.email}, level: ${profile.level.name}, bank inRemaining: ${profile.currentLimits.bank.inRemaining}`))
 
-
 // ----- FLOW START TO FINISH ----- //
-coinify.getSellQuote(100000, 'GBP', 'BTC')
+
+delegate.trades = coinify.trades;
+
+coinify.getSellQuote(1000, 'GBP', 'BTC')
   .then(quote => {
     console.log(`${quote.quoteAmount / -100000000} ${quote.quoteCurrency} for ${quote.baseAmount / 100} ${quote.baseCurrency} expires ${quote.expiresAt}`);
 
-    quote.getSellPaymentMediums().then(paymentAccounts => {
-      console.log('paymentAccounts', paymentAccounts);
-      // paymentAccounts[0].deleteOne();
-      // if (!paymentAccounts.length) {
-      //   console.log('no paymentAccounts');
-      //   // add bank account
-      //   quote.addSellPaymentMedium(b).then(res => {
-      //     console.log('added bank', res);
-      //   });
-      // }
-      paymentAccounts[0].sell().then(sellResult => {
-        console.log('result of sell', sellResult);
-      });
+    quote.getPayoutMediums().then(mediums => {
+      mediums.bank.getAccounts()
+        .then(accounts => {
+          accounts[0].getAll()
+            .then(banks => {
+              return banks;
+            })
+        .then((b) => {
+          accounts[0].sell(b[0]);
+        })
+        .then(res => {
+          console.log('res', res);
+          console.log('delegate', delegate.trades);
+        });
+        // to delete
+        // accounts[0].delete(<BANKID>);
+        });
     });
   });
