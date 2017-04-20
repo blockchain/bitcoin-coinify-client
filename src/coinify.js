@@ -195,8 +195,7 @@ class Coinify extends Exchange.Exchange {
   sell (quote, bank) {
     assert(quote, 'Quote is required');
 
-    const sellData = {
-      priceQuoteId: quote.id,
+    let sellData = {
       transferIn: {
         medium: 'blockchain'
       },
@@ -205,6 +204,24 @@ class Coinify extends Exchange.Exchange {
         mediumReceiveAccountId: bank.id
       }
     };
+
+    if (!quote.id) {
+      if (quote.baseCurrency === 'BTC') {
+        Object.assign(sellData, {
+          baseCurrency: 'BTC',
+          quoteCurrency: quote.quoteCurrency,
+          baseAmount: quote.baseAmount / 100000000
+        });
+      } else {
+        Object.assign(sellData, {
+          baseCurrency: quote.baseCurrency,
+          quoteCurrency: 'BTC',
+          baseAmount: quote.baseAmount / 100
+        });
+      }
+    } else {
+      Object.assign(sellData, { priceQuoteId: quote.id });
+    }
     return this._api.authPOST('trades', sellData);
   }
 
