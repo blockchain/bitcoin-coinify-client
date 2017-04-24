@@ -33,7 +33,8 @@ beforeEach(function () {
     inFixedFee: 0.01,
     outFixedFee: 0,
     inPercentageFee: 3,
-    outPercentageFee: 0
+    outPercentageFee: 0,
+    minimumInAmounts: {}
   };
   let sell = {
     inMedium: 'blockchain',
@@ -77,6 +78,7 @@ describe('Coinify Payment medium', function () {
       expect(b._outFixedFee).toBe(o.outFixedFee * 100);
       expect(b._inPercentageFee).toBe(o.inPercentageFee);
       expect(b._outPercentageFee).toBe(o.outPercentageFee);
+      expect(b._minimumInAmounts).toBe(o.minimumInAmounts);
     });
 
     it('should have getters', function () {
@@ -134,7 +136,7 @@ describe('Coinify Payment medium', function () {
   describe('getAll()', function () {
     beforeEach(() => {
       coinify = {
-        authGET (method, params) {
+        GET (method, params) {
           if (params.inCurrency === 'EUR') {
             return Promise.resolve([o, o, o, o]);
           } else {
@@ -144,15 +146,15 @@ describe('Coinify Payment medium', function () {
       };
     });
 
-    it('should authGET trades/payment-methods with the correct arguments', function (done) {
-      spyOn(coinify, 'authGET').and.callThrough();
+    it('should GET trades/payment-methods with the correct arguments', function (done) {
+      spyOn(coinify, 'GET').and.callThrough();
 
       let promise = PaymentMethod.getAll('EUR', 'BTC', coinify);
       let argument = {
         inCurrency: 'EUR',
         outCurrency: 'BTC'
       };
-      let testCalls = () => expect(coinify.authGET).toHaveBeenCalledWith('trades/payment-methods', argument);
+      let testCalls = () => expect(coinify.GET).toHaveBeenCalledWith('trades/payment-methods', argument);
       return promise
         .then(testCalls)
         .then(done);
