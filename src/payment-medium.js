@@ -10,6 +10,7 @@ class PaymentMedium extends ExchangePaymentMedium {
 
     this._inMedium = obj.inMedium;
     this._outMedium = obj.outMedium;
+    this._minimumInAmounts = obj.minimumInAmounts;
 
     /* istanbul ignore else */
     if (this._inMedium === 'card' || this._outMedium === 'card') {
@@ -70,7 +71,7 @@ class PaymentMedium extends ExchangePaymentMedium {
     }
 
     var output = [];
-    return api.authGET('trades/payment-methods', params).then(function (res) {
+    return api.GET('trades/payment-methods', params).then(function (res) {
       output = {};
       for (var i = 0; i < res.length; i++) {
         let medium = new PaymentMedium(res[i], api, quote);
