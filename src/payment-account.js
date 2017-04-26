@@ -2,7 +2,6 @@ var ExchangePaymentAccount = require('bitcoin-exchange-client').PaymentAccount;
 var Trade = require('./trade');
 var assert = require('assert');
 
-
 class PaymentAccount extends ExchangePaymentAccount {
   constructor (api, medium, quote, account) {
     super(api, medium, quote, Trade);
@@ -17,9 +16,9 @@ class PaymentAccount extends ExchangePaymentAccount {
     });
   }
 
-  sell (bank) {
-    return super.sell(bank).then(trade => {
-      console.log('returned trade', trade);
+  sell (bankId) {
+    return super.sell(bankId).then(trade => {
+      console.log('*** SELL TRADE CREATED ***', trade);
       return trade;
     });
   }

@@ -10,7 +10,6 @@ var Exchange = require('bitcoin-exchange-client');
 class Trade extends Exchange.Trade {
   constructor (obj, api, delegate) {
     super(api, delegate);
-
     assert(obj, 'JSON missing');
     this._id = obj.id;
     this.set(obj);
@@ -80,8 +79,10 @@ class Trade extends Exchange.Trade {
     // for sell trades - need bank info
     if (obj.transferIn) {
       if (obj.transferIn.medium === 'blockchain') {
-        this._bankName = obj.transferOut.details.bank.name;
         this._bankAccountNumber = obj.transferOut.details.account.number;
+        this._is_buy = false;
+        this._transferIn = obj.transferIn;
+        this._transferOut = obj.transferOut;
       }
     }
 
@@ -199,18 +200,20 @@ class Trade extends Exchange.Trade {
     return super.buy(quote, medium, request);
   }
 
-  static sell (quote, bank) {
-    console.log('called sell in bitcoin-coinify trade', quote, bank);
-    return quote.api.authPOST('trades', {
-      priceQuoteId: quote._id,
-      transferIn: {
-        medium: 'blockchain'
-      },
-      transferOut: {
-        medium: 'bank',
-        mediumReceiveAccountId: bank._account.id
-      }
-    });
+  static sell (quote, bankId) {
+    const request = (bankId) => {
+      return quote.api.authPOST('trades', {
+        priceQuoteId: quote._id,
+        transferIn: {
+          medium: 'blockchain'
+        },
+        transferOut: {
+          medium: 'bank',
+          mediumReceiveAccountId: bankId
+        }
+      });
+    };
+    return super.sell(quote, bankId, request);
   }
 
   static fetchAll (api) {
