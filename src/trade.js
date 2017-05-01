@@ -201,18 +201,30 @@ class Trade extends Exchange.Trade {
   }
 
   static sell (quote, bankId) {
-    const request = (bankId) => {
-      return quote.api.authPOST('trades', {
-        priceQuoteId: quote._id,
-        transferIn: {
-          medium: 'blockchain'
-        },
-        transferOut: {
-          medium: 'bank',
-          mediumReceiveAccountId: bankId
-        }
-      });
+    let sellData = {
+      transferIn: { medium: 'blockchain' },
+      transferOut: { medium: 'bank', mediumReceiveAccountId: bankId }
     };
+
+    if (!quote.id) {
+      if (quote.baseurrency === 'BTC') {
+        Object.assign(sellData, {
+          baseCurrency: 'BTC',
+          quoteCurrency: quote.quoteCurrency,
+          baseAmount: Math.round(quote.baseAmount / 100000000)
+        });
+      } else {
+        Object.assign(sellData, {
+          baseCurrency: quote.baseCurrency,
+          quoteCurrency: 'BTC',
+          baseAmount: quote.baseAmount / 100
+        });
+      }
+    } else {
+      Object.assign(sellData, { priceQuoteId: quote.id });
+    }
+
+    const request = (bankId) => quote.api.authPOST('trades', sellData);
     return super.sell(quote, bankId, request);
   }
 
