@@ -179,9 +179,9 @@ describe('Coinify Trade', function () {
         trade = new Trade(tradeJSON, api, delegate);
         expect(trade.id).toEqual(1142);
         expect(trade.iSignThisID).toEqual('05e18928-7b29-4b70-b29e-84cfe9fbc5ac');
-        expect(trade.quoteExpireTime).toEqual(new Date('2016-08-26T15:10:00.000Z'));
-        expect(trade.createdAt).toEqual(new Date('2016-08-26T14:53:26.650Z'));
-        expect(trade.updatedAt).toEqual(new Date('2016-08-26T14:54:00.000Z'));
+        expect(trade.quoteExpireTime).toEqual(new Date('2016-08-26T15:10:00.000Z').getTime());
+        expect(trade.createdAt).toEqual(new Date('2016-08-26T14:53:26.650Z').getTime());
+        expect(trade.updatedAt).toEqual(new Date('2016-08-26T14:54:00.000Z').getTime());
         expect(trade.inCurrency).toEqual('USD');
         expect(trade.outCurrency).toEqual('BTC');
         expect(trade.inAmount).toEqual(4000);

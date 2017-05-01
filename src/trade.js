@@ -98,7 +98,8 @@ class Trade extends Exchange.Trade {
       }
       this._createdAt = new Date(obj.createTime).getTime();
       this._updatedAt = new Date(obj.updateTime).getTime();
-      this._expiresAt = obj.quoteExpireTime ? new Date(obj.quoteExpireTime).getTime() : new Date().getTime() - 1;
+      this._quoteExpireTime = new Date(obj.quoteExpireTime).getTime();
+      this._expiresAt = obj.quoteExpireTime ? this._quoteExpireTime : new Date().getTime() - 1;
       this._receiptUrl = obj.receiptUrl;
 
       if (this._inCurrency !== 'BTC') {
