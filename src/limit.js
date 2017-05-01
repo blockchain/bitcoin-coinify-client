@@ -11,7 +11,7 @@ function Limit (obj) {
       this._inDaily = obj.in.daily;
     }
     if (obj.out) {
-      this._outDaily = obj.in.daily;
+      this._outDaily = obj.out.daily;
     }
   } else {
     this._inRemaining = obj.in;
