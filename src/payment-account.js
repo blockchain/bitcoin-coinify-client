@@ -24,6 +24,8 @@ class PaymentAccount extends ExchangePaymentAccount {
   }
 
   add (obj) {
+    assert(obj, 'bank obj is required');
+
     const b = {
       account: {
         currency: obj.account.currency,
@@ -40,7 +42,6 @@ class PaymentAccount extends ExchangePaymentAccount {
         }
       },
       bank: {
-        // name: obj.bank.name || null,
         address: {
           country: obj.bank.address.country,
           street: obj.bank.address.street || null,
@@ -65,6 +66,7 @@ class PaymentAccount extends ExchangePaymentAccount {
   }
 
   delete (id) {
+    assert(id, 'bank id is required');
     return this._api.DELETE(`bank-accounts/${id}`).then(res => console.log('delete should return undefined:', res));
   }
 }
