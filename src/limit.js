@@ -9,6 +9,7 @@ function Limit (obj) {
   if ((obj.in && Helpers.isPositiveNumber(obj.in.daily)) || (obj.out && Helpers.isPositiveNumber(obj.out.daily))) {
     if (obj.in) {
       this._inDaily = obj.in.daily;
+      this._inYearly = obj.in.yearly;
     }
     if (obj.out) {
       this._outDaily = obj.in.daily;
@@ -42,6 +43,12 @@ Object.defineProperties(Limit.prototype, {
     configurable: false,
     get: function () {
       return this._outDaily;
+    }
+  },
+  'inYearly': {
+    configurable: false,
+    get: function () {
+      return this._inYearly;
     }
   }
 });

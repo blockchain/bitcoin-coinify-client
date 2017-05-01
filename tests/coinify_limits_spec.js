@@ -33,7 +33,8 @@ describe('CoinifyLimits', function () {
       },
       bank: {
         in: {
-          daily: 1000
+          daily: 1000,
+          yearly: 1000
         },
         out: {
           daily: 1000
@@ -56,6 +57,7 @@ describe('CoinifyLimits', function () {
       it('should process daily limit', function () {
         expect(limits.card.inDaily).toBe(100);
         expect(limits.bank.inDaily).toBe(1000);
+        expect(limits.bank.inYearly).toBe(1000);
         expect(limits.bank.outDaily).toBe(1000);
       });
     })
