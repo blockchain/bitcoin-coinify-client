@@ -1,84 +1,160 @@
 let proxyquire = require('proxyquireify')(require);
 
-let Address = obj => ({street: obj.street});
-
 let stubs = {
-  './address': Address
 };
 
 let BankAccount = proxyquire('../src/bank-account', stubs);
-let o;
-let address;
+let b;
+let api;
 
 beforeEach(function () {
+  api = {};
   JasminePromiseMatchers.install();
-
-  address = {
-    street: '221B Baker Street'
-  };
-
-  o = {
-    id: 'id',
-    account: {
-      type: 'type',
-      currency: 'currency',
-      bic: 'bic',
-      number: 'number'
-    },
-    bank: {
-      name: 'Banky McBankface',
-      address
-    },
-    holder: {
-      address
-    },
-    referenceText: 'referenceText',
-    updateTime: 'updateTime',
-    createTime: 'createTime'
-  };
 });
 
 afterEach(() => JasminePromiseMatchers.uninstall());
 
-describe('Coinify: Bank account', function () {
-  describe('constructor', () =>
-    it('coinify reference must be preserved', function () {
-      let b = new BankAccount(o);
-      expect(b._id).toBe(o.id);
-      expect(b._type).toBe(o.account.type);
-      expect(b._currency).toBe(o.account.currency);
-      expect(b._bic).toBe(o.account.bic);
-      expect(b._number).toBe(o.account.number);
+describe('Coinify bank account', () =>
 
-      // expect(b._bank_name).toBe(o.bank.name);
-      expect(b._holder_name).toBe(o.holder.name);
-      expect(b._bank_address.street).toEqual(o.bank.address.street);
-      expect(b._holder_name).toBe(o.holder.name);
-      expect(b._holder_address.street).toEqual(o.holder.address.street);
-      // expect(b._referenceText).toBe(o.referenceText);
+  describe('constructor', function () {
+    let quote;
+    let account;
 
-      expect(b._updated_at).toBe(o.updateTime);
-      expect(b._created_at).toBe(o.createTime);
-    })
-  );
-
-  describe('instance', function () {
-    let b;
     beforeEach(() => {
-      b = new BankAccount(o);
+      quote = {baseAmount: -1000};
+      account = {
+        id: 12345,
+        trader_id: '123ABC',
+        account: {
+          bic: '112233AABBCC',
+          number: '1234 ABCD 5678 EFGH',
+          currency: 'EUR',
+          type: 'sepa'
+        },
+        bank: {
+          address: {
+            country: 'FR'
+          }
+        },
+        holder: {
+          name: 'Phil',
+          address: {
+            country: 'FR',
+            city: 'Paris',
+            zipcode: '12345',
+            street: '11 Main St'
+          }
+        }
+      };
     });
 
-    it('has getters', function () {
-      expect(b.type).toBe(o.account.type);
-      expect(b.currency).toBe(o.account.currency);
-      expect(b.bic).toBe(o.account.bic);
-      expect(b.number).toBe(o.account.number);
-
-      // expect(b.bankName).toBe(o.bank.name);
-      expect(b.bankAddress.street).toEqual(o.bank.address.street);
-      expect(b.holderName).toBe(o.holder.name);
-      expect(b.holderAddress.street).toEqual(o.holder.address.street);
-      // expect(b.referenceText).toBe(o.referenceText);
+    it('should set bank values', function () {
+      b = new BankAccount(account, api, quote);
+      expect(b._id).toBe(12345);
     });
-  });
-});
+  }),
+
+  describe('add', function () {
+    let obj;
+    let quote;
+
+    beforeEach(() => {
+      quote = {baseAmount: -1000};
+      obj = {
+        id: 12345,
+        trader_id: '123ABC',
+        account: {
+          bic: '112233AABBCC',
+          number: '1234 ABCD 5678 EFGH',
+          currency: 'EUR',
+          type: 'sepa'
+        },
+        bank: {
+          address: {
+            country: 'FR'
+          }
+        },
+        holder: {
+          name: 'Phil',
+          address: {
+            country: 'FR',
+            city: 'Paris',
+            zipcode: '12345',
+            street: '11 Main St'
+          }
+        }
+      };
+      api = {
+        authPOST () { return Promise.resolve('something'); }
+      };
+    });
+
+    it('should add a bank account', function () {
+      spyOn(api, 'authPOST').and.callThrough();
+      BankAccount.add(obj, api, quote);
+      expect(api.authPOST).toHaveBeenCalled();
+    });
+  }),
+  describe('getAll', function () {
+    let api;
+    let quote;
+
+    beforeEach(() => {
+      quote = {baseAmount: -1000};
+      api = {
+        authGET () { return Promise.resolve('something'); }
+      };
+    });
+
+    it('should get bank accounts', function () {
+      spyOn(api, 'authGET').and.callThrough();
+      BankAccount.getAll(api, quote);
+      expect(api.authGET).toHaveBeenCalledWith('bank-accounts');
+    });
+  }),
+
+  describe('delete', function () {
+    let api;
+    let b;
+    let obj;
+    let quote;
+
+    beforeEach(() => {
+      quote = {baseAmount: -1000};
+      obj = {
+        id: 12345,
+        trader_id: '123ABC',
+        account: {
+          bic: '112233AABBCC',
+          number: '1234 ABCD 5678 EFGH',
+          currency: 'EUR',
+          type: 'sepa'
+        },
+        bank: {
+          address: {
+            country: 'FR'
+          }
+        },
+        holder: {
+          name: 'Phil',
+          address: {
+            country: 'FR',
+            city: 'Paris',
+            zipcode: '12345',
+            street: '11 Main St'
+          }
+        }
+      };
+      api = {
+        DELETE () { return Promise.resolve('something'); }
+      };
+      b = new BankAccount(obj, api, quote);
+    });
+
+    it('should delete the bank account', function () {
+      spyOn(api, 'DELETE').and.callThrough();
+      b.delete();
+      expect(api.DELETE).toHaveBeenCalled();
+    });
+  })
+);

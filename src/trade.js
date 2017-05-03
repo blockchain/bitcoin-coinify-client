@@ -2,7 +2,7 @@
 
 var assert = require('assert');
 
-var BankAccount = require('./bank-account');
+var CoinifyBank = require('./coinify-bank');
 var Helpers = require('bitcoin-exchange-client').Helpers;
 
 var Exchange = require('bitcoin-exchange-client');
@@ -110,7 +110,7 @@ class Trade extends Exchange.Trade {
         }
 
         if (this._medium === 'bank') {
-          this._bankAccount = new BankAccount(obj.transferIn.details);
+          this._bankAccount = new CoinifyBank(obj.transferIn.details);
         }
 
         this._receiveAddress = obj.transferOut.details.account;

@@ -1,6 +1,7 @@
 var ExchangePaymentMedium = require('bitcoin-exchange-client').PaymentMedium;
 var PaymentAccount = require('./payment-account');
 var Trade = require('./trade');
+var BankAccount = require('./bank-account');
 
 class PaymentMedium extends ExchangePaymentMedium {
   constructor (obj, api, quote) {
@@ -51,9 +52,9 @@ class PaymentMedium extends ExchangePaymentMedium {
 
   get name () { return this._name; }
 
-  getAccounts () {
-    return Promise.resolve([new PaymentAccount(this._api, this.fiatMedium, this._quote)]);
-  }
+  // getAccounts () {
+  //   return Promise.resolve([new PaymentAccount(this._api, this.fiatMedium, this._quote)]);
+  // }
 
   // There are no PaymentAccounts when buying, so just call it directly:
   buy () {
@@ -85,10 +86,18 @@ class PaymentMedium extends ExchangePaymentMedium {
     });
   }
 
-  static getAccounts (api, quote) {
-    return PaymentAccount.getAll(api, quote).then(accounts => {
+  getAccounts () {
+    if (this._fiatMedium === 'card') return;
+    return BankAccount.getAll(this._api, this._quote).then(accounts => {
       this._accounts = accounts;
       return accounts;
+    });
+  }
+
+  addBankAccount (obj) {
+    return BankAccount.add(obj, this._api, this._quote).then(res => {
+      this._accounts.push(res);
+      return res;
     });
   }
 }

@@ -1,9 +1,9 @@
 let proxyquire = require('proxyquireify')(require);
 
-let BankAccount = () => ({mock: 'bank-account'});
+let CoinifyBank = () => ({mock: 'coinify-bank'});
 
 let stubs = {
-  './bank-account': BankAccount
+  './coinify-bank': CoinifyBank
 };
 
 let Trade = proxyquire('../src/trade', stubs);
@@ -204,7 +204,7 @@ describe('Coinify Trade', function () {
           details: {} // Bank account details are mocked
         };
         trade = new Trade(tradeJSON, api, delegate);
-        expect(trade.bankAccount).toEqual({mock: 'bank-account'});
+        expect(trade.bankAccount).toEqual({mock: 'coinify-bank'});
       });
     });
 
