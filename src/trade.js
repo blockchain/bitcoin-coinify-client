@@ -97,9 +97,10 @@ class Trade extends Exchange.Trade {
         // This log only happens if .set() is called after .debug is set.
         console.info('Trade ' + this.id + ' from Coinify API');
       }
-      this._createdAt = new Date(obj.createTime);
-      this._updatedAt = new Date(obj.updateTime);
-      this._quoteExpireTime = new Date(obj.quoteExpireTime);
+      this._createdAt = new Date(obj.createTime).getTime();
+      this._updatedAt = new Date(obj.updateTime).getTime();
+      this._quoteExpireTime = new Date(obj.quoteExpireTime).getTime();
+      this._expiresAt = obj.quoteExpireTime ? this._quoteExpireTime : new Date().getTime() - 1;
       this._receiptUrl = obj.receiptUrl;
 
       if (this._inCurrency !== 'BTC') {
