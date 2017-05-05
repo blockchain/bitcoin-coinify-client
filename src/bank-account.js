@@ -82,6 +82,10 @@ class BankAccount extends PaymentAccount {
       return trade;
     });
   }
+
+  updateQuote (quote) {
+    this._quote = quote;
+  }
 }
 
 module.exports = BankAccount;

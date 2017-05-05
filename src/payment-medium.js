@@ -52,9 +52,9 @@ class PaymentMedium extends ExchangePaymentMedium {
 
   get name () { return this._name; }
 
-  // getAccounts () {
-  //   return Promise.resolve([new PaymentAccount(this._api, this.fiatMedium, this._quote)]);
-  // }
+  getAccounts () {
+    return Promise.resolve([new PaymentAccount(this._api, this.fiatMedium, this._quote)]);
+  }
 
   // There are no PaymentAccounts when buying, so just call it directly:
   buy () {
@@ -86,7 +86,7 @@ class PaymentMedium extends ExchangePaymentMedium {
     });
   }
 
-  getAccounts () {
+  getBankAccounts () {
     if (this._fiatMedium === 'card') return;
     return BankAccount.getAll(this._api, this._quote).then(accounts => {
       this._accounts = accounts;
