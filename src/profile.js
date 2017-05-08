@@ -132,7 +132,6 @@ CoinifyProfile.prototype.fetch = function () {
     parentThis._country = res.profile.address.country;
 
     parentThis._level = new Level(res.level);
-    parentThis._nextLevel = new Level(res.nextLevel);
     parentThis._currentLimits = new Limits(res.currentLimits);
 
     parentThis._canTrade = res.canTrade == null ? true : Boolean(res.canTrade);
