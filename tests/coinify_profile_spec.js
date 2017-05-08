@@ -77,8 +77,7 @@ describe('CoinifyProfile', function () {
                 },
 
                 requirements: [],
-                level: {name: '1'},
-                nextLevel: {name: '2'}
+                level: {name: '1'}
               });
               return {
                 catch () {}
@@ -112,7 +111,6 @@ describe('CoinifyProfile', function () {
         expect(p.street).toEqual('Hoofdstraat 1');
         expect(p.zipcode).toEqual('1111 AA');
         expect(p.level.name).toEqual('1');
-        expect(p.nextLevel.name).toEqual('2');
         expect(p.currentLimits.card.in).toEqual(100);
       });
     });
