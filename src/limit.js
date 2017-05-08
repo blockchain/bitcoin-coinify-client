@@ -30,7 +30,7 @@ Object.defineProperties(Limit.prototype, {
   'outRemaining': {
     configurable: false,
     get: function () {
-      return this._inRemaining;
+      return this._outRemaining;
     }
   },
   'inDaily': {
