@@ -313,7 +313,7 @@ describe('Coinify', function () {
       it('should store the kycs', function (done) {
         let checks = res => expect(c.kycs.length).toEqual(1);
 
-        let promise = c.getKYCs().then(checks);
+        let promise = c.getKYCs().then(checks).catch(fail).then(done);
         expect(promise).toBeResolved(done);
       });
 

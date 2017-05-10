@@ -1,7 +1,3 @@
-'use strict';
-
-var assert = require('assert');
-
 var CoinifyBank = require('./coinify-bank');
 var Helpers = require('bitcoin-exchange-client').Helpers;
 
@@ -9,10 +5,33 @@ var Exchange = require('bitcoin-exchange-client');
 
 class Trade extends Exchange.Trade {
   constructor (obj, api, delegate) {
-    super(api, delegate);
-    assert(obj, 'JSON missing');
-    this._id = obj.id;
-    this.set(obj);
+    super(obj, api, delegate);
+
+    if (obj !== null) {
+      this._id = obj.id;
+
+      if ([
+        'awaiting_transfer_in',
+        'processing',
+        'reviewing',
+        'completed',
+        'completed_test',
+        'cancelled',
+        'rejected',
+        'expired'
+      ].indexOf(obj.state) === -1) {
+        console.warn('Unknown state:', obj.state);
+      }
+
+      this._state = obj.state;
+
+      this._is_buy = obj.is_buy;
+
+      this._delegate.deserializeExtraFields(obj, this);
+      this._receiveAddress = this._delegate.getReceiveAddress(this);
+      this._confirmed = obj.confirmed;
+      this._txHash = obj.tx_hash;
+    }
   }
 
   get iSignThisID () { return this._iSignThisID; }
@@ -35,7 +54,7 @@ class Trade extends Exchange.Trade {
     }
   }
 
-  set (obj) {
+  setFromAPI (obj) {
     if ([
       'awaiting_transfer_in',
       'processing',
@@ -48,13 +67,17 @@ class Trade extends Exchange.Trade {
     ].indexOf(obj.state) === -1) {
       console.warn('Unknown state:', obj.state);
     }
+
+    if (!this.id) {
+      this._id = obj.id;
+    }
+
     if (this._isDeclined && obj.state === 'awaiting_transfer_in') {
       // Coinify API may lag a bit behind the iSignThis iframe.
       this._state = 'rejected';
     } else {
       this._state = obj.state;
     }
-    this._is_buy = obj.is_buy;
 
     this._inCurrency = obj.inCurrency;
     this._outCurrency = obj.outCurrency;
@@ -86,36 +109,29 @@ class Trade extends Exchange.Trade {
       }
     }
 
-    if (obj.confirmed === Boolean(obj.confirmed)) {
-      this._delegate.deserializeExtraFields(obj, this);
-      this._receiveAddress = this._delegate.getReceiveAddress(this);
-      this._confirmed = obj.confirmed;
-      this._txHash = obj.tx_hash;
-    } else { // Contructed from Coinify API
-      /* istanbul ignore if */
-      if (this.debug) {
-        // This log only happens if .set() is called after .debug is set.
-        console.info('Trade ' + this.id + ' from Coinify API');
+    /* istanbul ignore if */
+    if (this.debug) {
+      // This log only happens if .set() is called after .debug is set.
+      console.info('Trade ' + this.id + ' from Coinify API');
+    }
+    this._createdAt = new Date(obj.createTime).getTime();
+    this._updatedAt = new Date(obj.updateTime).getTime();
+    this._quoteExpireTime = new Date(obj.quoteExpireTime).getTime();
+    this._expiresAt = obj.quoteExpireTime ? this._quoteExpireTime : new Date().getTime() - 1;
+    this._receiptUrl = obj.receiptUrl;
+
+    if (this._inCurrency !== 'BTC') {
+      // NOTE: this field is currently missing in the Coinify API:
+      if (obj.transferOut && obj.transferOutdetails && obj.transferOutdetails.transaction) {
+        this._txHash = obj.transferOutdetails.transaction;
       }
-      this._createdAt = new Date(obj.createTime).getTime();
-      this._updatedAt = new Date(obj.updateTime).getTime();
-      this._quoteExpireTime = new Date(obj.quoteExpireTime).getTime();
-      this._expiresAt = obj.quoteExpireTime ? this._quoteExpireTime : new Date().getTime() - 1;
-      this._receiptUrl = obj.receiptUrl;
 
-      if (this._inCurrency !== 'BTC') {
-        // NOTE: this field is currently missing in the Coinify API:
-        if (obj.transferOut && obj.transferOutdetails && obj.transferOutdetails.transaction) {
-          this._txHash = obj.transferOutdetails.transaction;
-        }
-
-        if (this._medium === 'bank') {
-          this._bankAccount = new CoinifyBank(obj.transferIn.details);
-        }
-
-        this._receiveAddress = obj.transferOut.details.account;
-        this._iSignThisID = obj.transferIn.details.paymentId;
+      if (this._medium === 'bank') {
+        this._bankAccount = new CoinifyBank(obj.transferIn.details);
       }
+
+      this._receiveAddress = obj.transferOut.details.account;
+      this._iSignThisID = obj.transferIn.details.paymentId;
     }
     return this;
   }
@@ -249,7 +265,7 @@ class Trade extends Exchange.Trade {
       console.info('Refresh ' + this.state + ' trade ' + this.id);
     }
     return this._api.authGET('trades/' + this._id)
-            .then(this.set.bind(this))
+            .then(this.setFromAPI.bind(this))
             .then(this._delegate.save.bind(this._delegate))
             .then(this.self.bind(this));
   }
@@ -273,6 +289,10 @@ class Trade extends Exchange.Trade {
     this._delegate.serializeExtraFields(serialized, this);
 
     return serialized;
+  }
+
+  static idFromAPI (obj) {
+    return obj.id;
   }
 }
 

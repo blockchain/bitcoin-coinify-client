@@ -6,16 +6,17 @@ var PaymentMedium = require('./payment-medium');
 var ExchangeRate = require('./exchange-rate');
 var Quote = require('./quote');
 var API = require('./api');
+var KYC = require('./kyc');
+var Helpers = require('bitcoin-exchange-client').Helpers;
 
 var assert = require('assert');
 
 class Coinify extends Exchange.Exchange {
-  constructor (object, delegate) {
-    super(delegate, Trade, Quote, PaymentMedium);
+  constructor (obj, delegate) {
+    const api = new API();
+    super(obj, delegate, api, Trade, Quote, PaymentMedium);
 
     assert(delegate.getToken, 'delegate.getToken() required');
-
-    var obj = object || {};
     this._partner_id = null;
     this._user = obj.user;
     this._auto_login = obj.auto_login;
@@ -29,16 +30,6 @@ class Coinify extends Exchange.Exchange {
     this._buyCurrencies = null;
     this._sellCurrencies = null;
 
-    this._trades = [];
-    if (obj.trades) {
-      for (let tradeObj of obj.trades) {
-        var trade = new Trade(tradeObj, this._api, delegate, this);
-        trade._getQuote = Quote.getQuote; // Prevents circular dependency
-        trade.debug = this._debug;
-        this._trades.push(trade);
-      }
-    }
-
     this._kycs = [];
 
     this.exchangeRate = new ExchangeRate(this._api);
@@ -50,6 +41,10 @@ class Coinify extends Exchange.Exchange {
     } else {
       return this._profile;
     }
+  }
+
+  getTrades () {
+    return super.getTrades(Quote);
   }
 
   get kycs () { return this._kycs; }
@@ -72,7 +67,7 @@ class Coinify extends Exchange.Exchange {
       user: this._user,
       offline_token: this._offlineToken,
       auto_login: this._auto_login,
-      trades: this._TradeClass.filteredTrades(this._trades)
+      trades: Trade.filteredTrades(this._trades)
     };
 
     return coinify;
@@ -147,10 +142,30 @@ class Coinify extends Exchange.Exchange {
     return CoinifyKYC.trigger(this._api).then(addKYC);
   }
 
+  updateKYCs (list, items) {
+    var item;
+    for (var i = 0; i < items.length; i++) {
+      item = undefined;
+      for (var k = 0; k < list.length; k++) {
+        var itemId = Helpers.isNumber(items[i].id) ? items[i].id : items[i].id.toLowerCase();
+        if (list[k]._id === itemId) {
+          item = list[k];
+          item.debug = this.debug;
+          item.set.bind(item)(items[i]);
+        }
+      }
+      if (item === undefined) {
+        item = new KYC(items[i], this._api, this.delegate, this);
+        item.debug = this.debug;
+        list.push(item);
+      }
+    }
+  }
+
   getKYCs () {
     var save = () => this.delegate.save.bind(this.delegate)().then(() => this._kycs);
     var update = (kycs) => {
-      this.updateList(this._kycs, kycs, CoinifyKYC);
+      this.updateKYCs(this._kycs, kycs, CoinifyKYC);
     };
     return CoinifyKYC.fetchAll(this._api, this)
                        .then(update)
