@@ -253,6 +253,15 @@ describe('Coinify API', function () {
             expect(api._request.calls.argsFor(0)[3]).toEqual(true);
           })
         );
+
+        describe('DELETE', () =>
+          it('should make a DELETE request', function () {
+            api.DELETE('/trades');
+            expect(api._request).toHaveBeenCalled();
+            expect(api._request.calls.argsFor(0)[0]).toEqual('DELETE');
+            expect(api._request.calls.argsFor(0)[3]).toEqual(true);
+          })
+        );
       });
     });
   });

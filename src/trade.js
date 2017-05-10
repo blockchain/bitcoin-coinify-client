@@ -2,7 +2,7 @@
 
 var assert = require('assert');
 
-var BankAccount = require('./bank-account');
+var CoinifyBank = require('./coinify-bank');
 var Helpers = require('bitcoin-exchange-client').Helpers;
 
 var Exchange = require('bitcoin-exchange-client');
@@ -10,7 +10,6 @@ var Exchange = require('bitcoin-exchange-client');
 class Trade extends Exchange.Trade {
   constructor (obj, api, delegate) {
     super(api, delegate);
-
     assert(obj, 'JSON missing');
     this._id = obj.id;
     this.set(obj);
@@ -80,8 +79,10 @@ class Trade extends Exchange.Trade {
     // for sell trades - need bank info
     if (obj.transferIn) {
       if (obj.transferIn.medium === 'blockchain') {
-        this._bankName = obj.transferOut.details.bank.name;
         this._bankAccountNumber = obj.transferOut.details.account.number;
+        this._is_buy = false;
+        this._transferIn = obj.transferIn;
+        this._transferOut = obj.transferOut;
       }
     }
 
@@ -109,7 +110,7 @@ class Trade extends Exchange.Trade {
         }
 
         if (this._medium === 'bank') {
-          this._bankAccount = new BankAccount(obj.transferIn.details);
+          this._bankAccount = new CoinifyBank(obj.transferIn.details);
         }
 
         this._receiveAddress = obj.transferOut.details.account;
@@ -198,6 +199,34 @@ class Trade extends Exchange.Trade {
       });
     };
     return super.buy(quote, medium, request);
+  }
+
+  static sell (quote, bankId) {
+    let sellData = {
+      transferIn: { medium: 'blockchain' },
+      transferOut: { medium: 'bank', mediumReceiveAccountId: bankId }
+    };
+
+    if (!quote.id) {
+      if (quote.baseurrency === 'BTC') {
+        Object.assign(sellData, {
+          baseCurrency: 'BTC',
+          quoteCurrency: quote.quoteCurrency,
+          baseAmount: Math.round(quote.baseAmount / 100000000)
+        });
+      } else {
+        Object.assign(sellData, {
+          baseCurrency: quote.baseCurrency,
+          quoteCurrency: 'BTC',
+          baseAmount: quote.baseAmount / 100
+        });
+      }
+    } else {
+      Object.assign(sellData, { priceQuoteId: quote.id });
+    }
+
+    const request = (bankId) => quote.api.authPOST('trades', sellData);
+    return super.sell(quote, bankId, request);
   }
 
   static fetchAll (api) {

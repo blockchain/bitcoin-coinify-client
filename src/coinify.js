@@ -6,7 +6,6 @@ var PaymentMedium = require('./payment-medium');
 var ExchangeRate = require('./exchange-rate');
 var Quote = require('./quote');
 var API = require('./api');
-var Bank = require('./bank');
 
 var assert = require('assert');
 
@@ -43,8 +42,6 @@ class Coinify extends Exchange.Exchange {
     this._kycs = [];
 
     this.exchangeRate = new ExchangeRate(this._api);
-
-    this._bank = new Bank(this._api, delegate);
   }
 
   get profile () {
@@ -190,39 +187,6 @@ class Coinify extends Exchange.Exchange {
       return currencies;
     };
     return this.getSellMethods().then(getCurrencies.bind(this));
-  }
-
-  sell (quote, bank) {
-    assert(quote, 'Quote is required');
-
-    let sellData = {
-      transferIn: {
-        medium: 'blockchain'
-      },
-      transferOut: {
-        medium: 'bank',
-        mediumReceiveAccountId: bank.id
-      }
-    };
-
-    if (!quote.id) {
-      if (quote.baseCurrency === 'BTC') {
-        Object.assign(sellData, {
-          baseCurrency: 'BTC',
-          quoteCurrency: quote.quoteCurrency,
-          baseAmount: quote.baseAmount / 100000000
-        });
-      } else {
-        Object.assign(sellData, {
-          baseCurrency: quote.baseCurrency,
-          quoteCurrency: 'BTC',
-          baseAmount: quote.baseAmount / 100
-        });
-      }
-    } else {
-      Object.assign(sellData, { priceQuoteId: quote.id });
-    }
-    return this._api.authPOST('trades', sellData);
   }
 
   static new (delegate) {

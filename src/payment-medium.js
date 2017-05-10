@@ -1,6 +1,7 @@
 var ExchangePaymentMedium = require('bitcoin-exchange-client').PaymentMedium;
 var PaymentAccount = require('./payment-account');
 var Trade = require('./trade');
+var BankAccount = require('./bank-account');
 
 class PaymentMedium extends ExchangePaymentMedium {
   constructor (obj, api, quote) {
@@ -38,6 +39,9 @@ class PaymentMedium extends ExchangePaymentMedium {
     }
     this._inPercentageFee = obj.inPercentageFee;
     this._outPercentageFee = obj.outPercentageFee;
+
+    this._bankId = obj.bankId;
+    this._bankAccount = obj.bankAccount;
 
     if (quote) {
       let amt = quote.baseCurrency === 'BTC' ? quote.quoteAmount : quote.baseAmount;
@@ -79,6 +83,21 @@ class PaymentMedium extends ExchangePaymentMedium {
         }
       }
       return Promise.resolve(output);
+    });
+  }
+
+  getBankAccounts () {
+    if (this._fiatMedium === 'card') return;
+    return BankAccount.getAll(this._api, this._quote).then(accounts => {
+      this._accounts = accounts;
+      return accounts;
+    });
+  }
+
+  addBankAccount (obj) {
+    return BankAccount.add(obj, this._api, this._quote).then(res => {
+      this._accounts.push(res);
+      return res;
     });
   }
 }

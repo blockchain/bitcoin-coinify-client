@@ -67,6 +67,9 @@ describe('CoinifyProfile', function () {
                 email: 'john@do.com',
                 profile,
                 feePercentage: 3,
+                canTrade: true,
+                canTradeAfter: false,
+                cannotTradeReason: 'awaiting_trade_completion',
                 currentLimits: {
                   card: {
                     in: 100
@@ -112,6 +115,9 @@ describe('CoinifyProfile', function () {
         expect(p.zipcode).toEqual('1111 AA');
         expect(p.level.name).toEqual('1');
         expect(p.currentLimits.card.in).toEqual(100);
+        expect(p.canTrade).toEqual(true);
+        expect(p.canTradeAfter).toEqual(new Date(12/31/1969));
+        expect(p.cannotTradeReason).toEqual('awaiting_trade_completion');
       });
     });
 
