@@ -15,6 +15,7 @@ function CoinifyBank (obj, api) {
   this._bank_address = new Address(obj.bank.address);
   this._holder_name = obj.holder.name;
   this._holder_address = new Address(obj.holder.address);
+  this._referenceText = obj.referenceText;
   this._updated_at = obj.updateTime; // Not used in buy
   this._created_at = obj.createTime; // Not used in buy
 }
