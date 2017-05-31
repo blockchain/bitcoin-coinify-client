@@ -40,9 +40,6 @@ module.exports = function (config) {
           bundle.transform('browserify-istanbul'); // Must go first
           bundle.transform('babelify', {
             presets: ['es2015'],
-            ignore: [
-              /\/node_modules\/(?!bitcoin-exchange-client\/)/
-            ],
             global: true,
             sourceMap: 'inline'
           });

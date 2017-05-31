@@ -1,7 +1,7 @@
 
 let proxyquire = require('proxyquireify')(require);
 
-let PaymentMedium = {
+class PaymentMedium {
   getAll () {
     return Promise.resolve([
       {
@@ -9,7 +9,7 @@ let PaymentMedium = {
       }
     ]);
   }
-};
+}
 
 let Trade = function () {};
 Trade.buy = quote => Promise.resolve({amount: quote.baseAmount});
