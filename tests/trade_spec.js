@@ -54,22 +54,10 @@ describe('Coinify Trade', function () {
     describe('new Trade()', function () {
       beforeEach(function () {
         delegate = {
-          getReceiveAddress () {}
+          getReceiveAddress () {},
+          deserializeExtraFields () {}
         };
         api = {};
-      });
-
-      it('should keep a reference to the API', function () {
-        let t = new Trade(tradeJSON, api, delegate);
-        expect(t._api).toBe(api);
-        expect(t._id).toBe(tradeJSON.id);
-        expect(t._inCurrency).toBe(tradeJSON.inCurrency);
-        expect(t._outCurrency).toBe(tradeJSON.outCurrency);
-        expect(t._medium).toBe(tradeJSON.transferIn.medium);
-        expect(t._receiveAddress).toBe(tradeJSON.transferOut.details.account);
-        expect(t._state).toBe(tradeJSON.state);
-        expect(t._iSignThisID).toBe(tradeJSON.transferIn.details.paymentId);
-        expect(t._receiptUrl).toBe(tradeJSON.receiptUrl);
       });
 
       it('should warn if there is an unknown state type', function () {
@@ -176,7 +164,8 @@ describe('Coinify Trade', function () {
       });
 
       it('should have more simple ones loaded from API', function () {
-        trade = new Trade(tradeJSON, api, delegate);
+        trade = new Trade(null, api, delegate);
+        trade.setFromAPI(tradeJSON);
         expect(trade.id).toEqual(1142);
         expect(trade.iSignThisID).toEqual('05e18928-7b29-4b70-b29e-84cfe9fbc5ac');
         expect(trade.quoteExpireTime).toEqual(new Date('2016-08-26T15:10:00.000Z').getTime());
@@ -203,7 +192,8 @@ describe('Coinify Trade', function () {
           medium: 'bank',
           details: {} // Bank account details are mocked
         };
-        trade = new Trade(tradeJSON, api, delegate);
+        trade = new Trade(null, api, delegate);
+        trade.setFromAPI(tradeJSON);
         expect(trade.bankAccount).toEqual({mock: 'coinify-bank'});
       });
     });
@@ -288,15 +278,14 @@ describe('Coinify Trade', function () {
       });
     });
 
-    describe('set(obj)', function () {
-      it('set new object and does not change id or date', function () {
+    describe('setFromAPI(obj)', function () {
+      it('should not change id', function () {
         let oldId = tradeJSON.id;
-        let oldTimeStamp = trade._createdAt;
         tradeJSON.id = 100;
         tradeJSON.inCurrency = 'monopoly';
-        trade.set(tradeJSON);
+        trade._id = oldId;
+        trade.setFromAPI(tradeJSON);
         expect(trade._id).toBe(oldId);
-        expect(trade._createdAt).toEqual(oldTimeStamp);
         expect(trade._inCurrency).toBe(tradeJSON.inCurrency);
       });
 
@@ -306,7 +295,7 @@ describe('Coinify Trade', function () {
         tradeJSON.outAmount = 0.00003505;
         tradeJSON.outAmountExpected = 0.00003505;
 
-        trade.set(tradeJSON);
+        trade.setFromAPI(tradeJSON);
         expect(trade.inAmount).toEqual(3505);
         expect(trade.sendAmount).toEqual(3505);
         expect(trade.outAmount).toEqual(3505);
@@ -321,7 +310,7 @@ describe('Coinify Trade', function () {
         tradeJSON.outAmount = 35.05;
         tradeJSON.outAmountExpected = 35.05;
 
-        trade.set(tradeJSON);
+        trade.setFromAPI(tradeJSON);
         expect(trade.inAmount).toEqual(3505);
         expect(trade.sendAmount).toEqual(3505);
         expect(trade.outAmount).toEqual(3505);
@@ -330,208 +319,212 @@ describe('Coinify Trade', function () {
 
       it("state should stay 'rejected' after card decline", function () {
         trade._isDeclined = true;
-        trade.set(tradeJSON); // {state: 'awaiting_transfer_in'}
+        trade.setFromAPI(tradeJSON); // {state: 'awaiting_transfer_in'}
         expect(trade.state).toEqual('rejected');
       });
     });
 
-    describe('declined()', function () {
-      beforeEach(() => trade.set(tradeJSON));
-
-      it('should change state to rejected and set _isDeclined', function () {
-        trade.declined();
-        expect(trade.state).toEqual('rejected');
-        expect(trade._isDeclined).toEqual(true);
-      });
-    });
-
-    describe('cancel()', function () {
+    describe('from API', () => {
       beforeEach(function () {
-        api.authPATCH = () => {
-          return ({
-            then (cb) {
-              return cb({state: 'cancelled'});
-            }
-          });
-        };
-
-        return spyOn(api, 'authPATCH').and.callThrough();
+        trade.setFromAPI(tradeJSON);
       });
 
-      it('should cancel a trade and update its state', function () {
-        trade.cancel();
-        expect(api.authPATCH).toHaveBeenCalledWith(`trades/${trade._id}/cancel`);
-        expect(trade._state).toBe('cancelled');
-      });
+      describe('declined()', function () {
+        beforeEach(() => trade.setFromAPI(tradeJSON));
 
-      it('should notifiy the delegate the receive address is no longer needed', function () {
-        spyOn(delegate, 'releaseReceiveAddress');
-        trade.cancel();
-        expect(delegate.releaseReceiveAddress).toHaveBeenCalled();
-      });
-    });
-
-    describe('fakeBankTransfer()', () =>
-      it('should POST a fake bank-transfer', function () {
-        trade.fakeBankTransfer();
-        expect(api.authPOST).toHaveBeenCalledWith('trades/1142/test/bank-transfer', {
-          sendAmount: 40,
-          currency: 'USD'
+        it('should change state to rejected and set _isDeclined', function () {
+          trade.declined();
+          expect(trade.state).toEqual('rejected');
+          expect(trade._isDeclined).toEqual(true);
         });
-      })
-    );
-
-    describe('buy()', function () {
-      let quote;
-
-      beforeEach(function () {
-        spyOn(Trade.prototype, '_monitorAddress').and.callFake(function () {});
-        api.authPOST = () => Promise.resolve(tradeJSON);
-
-        quote = {
-          id: 101,
-          expiresAt: new Date(new Date().getTime() + 100000),
-          api,
-          delegate,
-          debug: true,
-          _TradeClass: Trade
-        };
       });
 
-      it('should check that quote  is still valid', function () {
-        quote.expiresAt = new Date(new Date().getTime() - 100000);
-        expect(() => { Trade.buy(quote, 'card'); }).toThrow();
-      });
-
-      it('should POST the quote and resolve the trade', function (done) {
-        spyOn(api, 'authPOST').and.callThrough();
-        let testTrade = function (t) {
-          expect(api.authPOST).toHaveBeenCalled();
-          expect(t.id).toEqual(1142);
-        };
-
-        let promise = Trade.buy(quote, 'bank')
-          .then(testTrade);
-
-        expect(promise).toBeResolved(done);
-      });
-
-      it('should watch the address', function (done) {
-        let checks = trade => expect(trade._monitorAddress).toHaveBeenCalled();
-
-        let promise = Trade.buy(quote, 'bank')
-          .then(checks);
-
-        expect(promise).toBeResolved(done);
-      });
-    });
-
-    describe('fetchAll()', function () {
-      beforeEach(() => spyOn(delegate, 'releaseReceiveAddress').and.callThrough());
-
-      it('should fetch all the trades', function (done) {
-        api.authGET = () => Promise.resolve([tradeJSON, tradeJSON2]);
-
-        let check = function (res) {
-          expect(res.length).toBe(2);
-          return done();
-        };
-
-        let promise = Trade.fetchAll(api).then(check);
-        expect(promise).toBeResolved();
-      });
-    });
-
-    describe('btcExpected', function () {
-      beforeEach(function () {
-        let now = new Date(2016, 9, 25, 12, 10, 0); // 12:10:00
-        jasmine.clock().mockDate(now);
-        trade._quoteExpireTime = new Date(2016, 9, 25, 12, 15, 0);
-      }); // 12:15:00
-
-      it("should use the quote if that's still valid", function () {
-        let promise = trade.btcExpected();
-        expect(promise).toBeResolvedWith(0.06454481);
-      });
-
-      describe('when quote expired', function () {
+      describe('cancel()', function () {
         beforeEach(function () {
-          trade._lastBtcExpectedGuessAt = new Date(2016, 9, 25, 12, 15, 15); // 12:15:15
-          trade._lastBtcExpectedGuess = 0.07;
+          api.authPATCH = () => {
+            return ({
+              then (cb) {
+                return cb({state: 'cancelled'});
+              }
+            });
+          };
+
+          return spyOn(api, 'authPATCH').and.callThrough();
         });
 
-        it('should use the last value if quote expired less than a minute ago', function () {
-          jasmine.clock().mockDate(new Date(2016, 9, 25, 12, 15, 45)); // 12:15:45
-
-          let promise = trade.btcExpected();
-          expect(promise).toBeResolvedWith(0.07);
+        it('should cancel a trade and update its state', function () {
+          trade.cancel();
+          expect(api.authPATCH).toHaveBeenCalledWith(`trades/${trade._id}/cancel`);
+          expect(trade._state).toBe('cancelled');
         });
 
-        it('should get and store quote', function (done) {
-          let now = new Date(2016, 9, 25, 12, 16, 15);
-          jasmine.clock().mockDate(now); // 12:16:15
-          spyOn(trade, '_getQuote').and.callThrough();
+        it('should notifiy the delegate the receive address is no longer needed', function () {
+          spyOn(delegate, 'releaseReceiveAddress');
+          trade.cancel();
+          expect(delegate.releaseReceiveAddress).toHaveBeenCalled();
+        });
+      });
 
-          let checks = function () {
-            expect(trade._lastBtcExpectedGuessAt).toEqual(now);
-            expect(trade._lastBtcExpectedGuess).toEqual(0.071);
+      describe('fakeBankTransfer()', () =>
+        it('should POST a fake bank-transfer', function () {
+          trade.fakeBankTransfer();
+          expect(api.authPOST).toHaveBeenCalledWith('trades/1142/test/bank-transfer', {
+            sendAmount: 40,
+            currency: 'USD'
+          });
+        })
+      );
+
+      describe('buy()', function () {
+        let quote;
+
+        beforeEach(function () {
+          spyOn(Trade.prototype, '_monitorAddress').and.callFake(function () {});
+          api.authPOST = () => Promise.resolve(tradeJSON);
+
+          quote = {
+            id: 101,
+            expiresAt: new Date(new Date().getTime() + 100000),
+            api,
+            delegate,
+            debug: true,
+            _TradeClass: Trade
+          };
+        });
+
+        it('should check that quote  is still valid', function () {
+          quote.expiresAt = new Date(new Date().getTime() - 100000);
+          expect(() => { Trade.buy(quote, 'card'); }).toThrow();
+        });
+
+        it('should POST the quote and resolve the trade', function (done) {
+          spyOn(api, 'authPOST').and.callThrough();
+          let testTrade = function (t) {
+            expect(api.authPOST).toHaveBeenCalled();
+            expect(t.id).toEqual(1142);
+          };
+
+          let promise = Trade.buy(quote, 'bank')
+            .then(testTrade);
+
+          expect(promise).toBeResolved(done);
+        });
+
+        it('should watch the address', function (done) {
+          let checks = trade => expect(trade._monitorAddress).toHaveBeenCalled();
+
+          let promise = Trade.buy(quote, 'bank')
+            .then(checks);
+
+          expect(promise).toBeResolved(done);
+        });
+      });
+
+      describe('fetchAll()', function () {
+        beforeEach(() => spyOn(delegate, 'releaseReceiveAddress').and.callThrough());
+
+        it('should fetch all the trades', function (done) {
+          api.authGET = () => Promise.resolve([tradeJSON, tradeJSON2]);
+
+          let check = function (res) {
+            expect(res.length).toBe(2);
             return done();
           };
 
-          let promise = trade.btcExpected().then(checks);
-          expect(promise).toBeResolvedWith(0.071);
+          let promise = Trade.fetchAll(api).then(check);
+          expect(promise).toBeResolved();
         });
       });
-    });
 
-    describe('expireQuote', () =>
-      it('should expire the quote sooner', function () {
-        let now = new Date(2016, 9, 25, 11, 50, 0);
-        let threeSeconds = new Date(2016, 9, 25, 11, 50, 3);
-        trade._quoteExpireTime = new Date(2016, 9, 25, 12, 0);
-        jasmine.clock().mockDate(now);
-        trade.expireQuote();
-        expect(trade.quoteExpireTime).toEqual(threeSeconds);
-      })
-    );
+      describe('btcExpected', function () {
+        beforeEach(function () {
+          let now = new Date(2016, 9, 25, 12, 10, 0); // 12:10:00
+          jasmine.clock().mockDate(now);
+          trade._quoteExpireTime = new Date(2016, 9, 25, 12, 15, 0);
+        }); // 12:15:00
 
-    describe('refresh()', function () {
-      beforeEach(function () {
-        api.authGET = () => Promise.resolve({});
-        spyOn(api, 'authGET').and.callThrough();
+        it("should use the quote if that's still valid", function () {
+          let promise = trade.btcExpected();
+          expect(promise).toBeResolvedWith(0.06454481);
+        });
+
+        describe('when quote expired', function () {
+          beforeEach(function () {
+            trade._lastBtcExpectedGuessAt = new Date(2016, 9, 25, 12, 15, 15); // 12:15:15
+            trade._lastBtcExpectedGuess = 0.07;
+          });
+
+          it('should use the last value if quote expired less than a minute ago', function () {
+            jasmine.clock().mockDate(new Date(2016, 9, 25, 12, 15, 45)); // 12:15:45
+
+            let promise = trade.btcExpected();
+            expect(promise).toBeResolvedWith(0.07);
+          });
+
+          it('should get and store quote', function (done) {
+            let now = new Date(2016, 9, 25, 12, 16, 15);
+            jasmine.clock().mockDate(now); // 12:16:15
+            spyOn(trade, '_getQuote').and.callThrough();
+
+            let checks = function () {
+              expect(trade._lastBtcExpectedGuessAt).toEqual(now);
+              expect(trade._lastBtcExpectedGuess).toEqual(0.071);
+              return done();
+            };
+
+            let promise = trade.btcExpected().then(checks);
+            expect(promise).toBeResolvedWith(0.071);
+          });
+        });
       });
 
-      it('should authGET /trades/:id and update the trade object', function (done) {
-        let checks = function () {
-          expect(api.authGET).toHaveBeenCalledWith(`trades/${trade._id}`);
-          expect(trade.set).toHaveBeenCalled();
-        };
+      describe('expireQuote', () =>
+        it('should expire the quote sooner', function () {
+          let now = new Date(2016, 9, 25, 11, 50, 0);
+          let threeSeconds = new Date(2016, 9, 25, 11, 50, 3);
+          trade._quoteExpireTime = new Date(2016, 9, 25, 12, 0);
+          jasmine.clock().mockDate(now);
+          trade.expireQuote();
+          expect(trade.quoteExpireTime).toEqual(threeSeconds);
+        })
+      );
 
-        trade.set = () => Promise.resolve(trade);
-        spyOn(trade, 'set').and.callThrough();
+      describe('refresh()', function () {
+        beforeEach(function () {
+          api.authGET = () => Promise.resolve({});
+          spyOn(api, 'authGET').and.callThrough();
+          spyOn(trade, 'setFromAPI').and.callFake(() => {});
+        });
 
-        let promise = trade.refresh().then(checks);
+        it('should authGET /trades/:id and update the trade object', function (done) {
+          let checks = function () {
+            expect(api.authGET).toHaveBeenCalledWith(`trades/${trade.id}`);
+            expect(trade.setFromAPI).toHaveBeenCalled();
+          };
 
-        expect(promise).toBeResolved(done);
-      });
+          let promise = trade.refresh().then(checks).catch(fail).then(done);
 
-      it('should save metadata', function (done) {
-        let checks = () => expect(trade._delegate.save).toHaveBeenCalled();
+          expect(promise).toBeResolved();
+        });
 
-        trade.set = () => Promise.resolve(trade);
-        spyOn(trade._delegate, 'save').and.callThrough();
-        let promise = trade.refresh().then(checks);
+        it('should save metadata', function (done) {
+          let checks = () => expect(trade._delegate.save).toHaveBeenCalled();
 
-        expect(promise).toBeResolved(done);
-      });
+          trade.setFromAPI = () => Promise.resolve(trade);
+          spyOn(trade._delegate, 'save').and.callThrough();
+          let promise = trade.refresh().then(checks);
 
-      it('should resolve with trade object', function (done) {
-        let checks = res => expect(res).toEqual(trade);
+          expect(promise).toBeResolved(done);
+        });
 
-        trade.set = () => Promise.resolve(trade);
-        let promise = trade.refresh().then(checks);
+        it('should resolve with trade object', function (done) {
+          let checks = res => expect(res).toEqual(trade);
 
-        expect(promise).toBeResolved(done);
+          trade.setFromAPI = () => Promise.resolve(trade);
+          let promise = trade.refresh().then(checks);
+
+          expect(promise).toBeResolved(done);
+        });
       });
     });
   });
