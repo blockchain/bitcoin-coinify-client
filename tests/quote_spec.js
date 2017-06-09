@@ -44,6 +44,7 @@ describe('Coinify Quote', function () {
   describe('class', function () {
     describe('new Quote()', function () {
       it('should construct a Quote', function () {
+        expect(q._timeOfRequest).toEqual(new Date(obj.issueTime));
         expect(q._expiresAt).toEqual(new Date(obj.expiryTime));
         expect(q._baseCurrency).toBe(obj.baseCurrency);
         expect(q._quoteCurrency).toBe(obj.quoteCurrency);
