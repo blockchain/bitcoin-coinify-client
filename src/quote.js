@@ -7,6 +7,7 @@ class Quote extends Exchange.Quote {
     super(api, delegate, Trade, PaymentMethod, debug);
 
     var expiresAt = new Date(obj.expiryTime);
+    var timeOfRequest = new Date(obj.issueTime);
 
     // Debug, make quote expire in 15 seconds:
     // expiresAt = new Date(new Date().getTime() + 15 * 1000);
@@ -15,6 +16,7 @@ class Quote extends Exchange.Quote {
     this._baseCurrency = obj.baseCurrency;
     this._quoteCurrency = obj.quoteCurrency;
     this._expiresAt = expiresAt;
+    this._timeOfRequest = timeOfRequest;
 
     if (this._baseCurrency === 'BTC') {
       this._baseAmount = Math.round(obj.baseAmount * 100000000);
