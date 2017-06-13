@@ -13,7 +13,7 @@ var assert = require('assert');
 
 class Coinify extends Exchange.Exchange {
   constructor (obj, delegate) {
-    const api = new API();
+    const api = new API('https://app-api.coinify.com/');
     super(obj, delegate, api, Trade, Quote, PaymentMedium);
 
     assert(delegate.getToken, 'delegate.getToken() required');
@@ -22,7 +22,7 @@ class Coinify extends Exchange.Exchange {
     this._auto_login = obj.auto_login;
     this._offlineToken = obj.offline_token;
 
-    this._api = new API('https://app-api.coinify.com/');
+    this._api = api;
     this._api._offlineToken = this._offlineToken;
 
     this._profile = new CoinifyProfile(this._api);
