@@ -52,6 +52,8 @@ class PaymentMedium extends ExchangePaymentMedium {
   }
 
   get name () { return this._name; }
+  get limitInAmounts () { return this._limitInAmounts; }
+  get minimumInAmounts () { return this._minimumInAmounts; }
 
   getAccounts () {
     return Promise.resolve([new PaymentAccount(this._api, this.fiatMedium, this._quote)]);
@@ -66,7 +68,8 @@ class PaymentMedium extends ExchangePaymentMedium {
   static getAll (inCurrency, outCurrency, api, quote) {
     var params = {};
     if (inCurrency) {
-      params.inCurrency = inCurrency;
+      /* including inCurrency restricts the response to only include limits in that one currency */
+      // params.inCurrency = inCurrency;
     }
     if (outCurrency) {
       params.outCurrency = outCurrency;
