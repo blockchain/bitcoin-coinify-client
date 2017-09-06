@@ -29,6 +29,8 @@ class Quote extends Exchange.Quote {
     obj.baseAmount;
   }
 
+  get paymentMediums () { return this._paymentMediums; }
+
   static getQuote (api, delegate, amount, baseCurrency, quoteCurrency, debug) {
     const processQuote = (quote) => new Quote(quote, api, delegate);
 

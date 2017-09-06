@@ -12,6 +12,7 @@ class PaymentMedium extends ExchangePaymentMedium {
     this._inMedium = obj.inMedium;
     this._outMedium = obj.outMedium;
     this._minimumInAmounts = obj.minimumInAmounts;
+    this._limitInAmounts = obj.limitInAmounts;
 
     /* istanbul ignore else */
     if (this._inMedium === 'card' || this._outMedium === 'card') {
@@ -51,6 +52,8 @@ class PaymentMedium extends ExchangePaymentMedium {
   }
 
   get name () { return this._name; }
+  get limitInAmounts () { return this._limitInAmounts; }
+  get minimumInAmounts () { return this._minimumInAmounts; }
 
   getAccounts () {
     return Promise.resolve([new PaymentAccount(this._api, this.fiatMedium, this._quote)]);
@@ -65,14 +68,16 @@ class PaymentMedium extends ExchangePaymentMedium {
   static getAll (inCurrency, outCurrency, api, quote) {
     var params = {};
     if (inCurrency) {
-      params.inCurrency = inCurrency;
+      /* including inCurrency restricts the response to only include limits in that one currency */
+      // params.inCurrency = inCurrency;
     }
     if (outCurrency) {
       params.outCurrency = outCurrency;
     }
 
     var output = [];
-    return api.GET('trades/payment-methods', params).then(function (res) {
+    var request = api.hasAccount ? api.authGET('trades/payment-methods', params) : api.GET('trades/payment-methods', params);
+    return request.then(function (res) {
       output = {};
       for (var i = 0; i < res.length; i++) {
         let medium = new PaymentMedium(res[i], api, quote);

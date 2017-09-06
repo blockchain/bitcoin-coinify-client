@@ -160,7 +160,6 @@ describe('Coinify Payment medium', function () {
 
       let promise = PaymentMethod.getAll('EUR', 'BTC', coinify);
       let argument = {
-        inCurrency: 'EUR',
         outCurrency: 'BTC'
       };
       let testCalls = () => expect(coinify.GET).toHaveBeenCalledWith('trades/payment-methods', argument);
@@ -172,7 +171,7 @@ describe('Coinify Payment medium', function () {
     it('should return {bank: ..., card: ...} for buy', function (done) {
       let promise = PaymentMethod.getAll('EUR', 'BTC', coinify);
 
-      let testCalls = res => expect(res.bank).toBeDefined();
+      let testCalls = res => expect(res.blockchain.outMedium).toBe('bank');
 
       return promise
         .then(testCalls)
