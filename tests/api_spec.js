@@ -72,8 +72,8 @@ describe('Coinify API', function () {
         expect(api._url()).toEqual('https://app-api.coinify.com/');
       });
 
-      it('should use sandbox for testnet', () => {
-        api._testnet = true;
+      it('should use sandbox when sandbox is set', () => {
+        api._sandbox = true;
         expect(api._url()).toEqual('https://app-api.sandbox.coinify.com/');
       });
 
