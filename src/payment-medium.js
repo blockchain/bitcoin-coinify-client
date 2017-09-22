@@ -46,7 +46,8 @@ class PaymentMedium extends ExchangePaymentMedium {
 
     if (quote) {
       let amt = quote.baseCurrency === 'BTC' ? quote.quoteAmount : quote.baseAmount;
-      this._fee = Math.round(this.inFixedFee + -amt * (this.inPercentageFee / 100));
+      let percentageFee = amt < 0 ? this.inPercentageFee : -this.outPercentageFee;
+      this._fee = Math.round(this.inFixedFee + -amt * (percentageFee / 100));
       this._total = -amt + this._fee;
     }
   }
