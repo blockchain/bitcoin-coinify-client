@@ -28,7 +28,7 @@
   ],
   "license": "ISC",
   "dependencies": {
-    "bitcoin-exchange-client": "^0.4.0",
+    "bitcoin-exchange-client": "^0.4.6",
     "babel-polyfill": "6.16.*",
     "babel-preset-es2015": "6.16.*",
     "babelify": "7.3.*"
