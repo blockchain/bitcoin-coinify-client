@@ -1,6 +1,6 @@
 {
   "name": "bitcoin-coinify-client",
-  "version": "0.6.8",
+  "version": "0.6.9",
   "description": "Buy and sell Bitcoin using Coinify API.",
   "repository": {
     "type": "git",
