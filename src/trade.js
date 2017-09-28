@@ -189,7 +189,7 @@ class Trade extends Exchange.Trade {
     var self = this;
 
     return self._api.authPOST('trades/' + self._id + '/test/bank-transfer', {
-      sendAmount: parseFloat((self.inAmount / 100).toFixed(2)),
+      sendAmount: parseFloat((self.sendAmount / 100).toFixed(2)),
       currency: self.inCurrency
     }).then(this._delegate.save.bind(this._delegate));
   }
