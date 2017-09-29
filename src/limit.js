@@ -12,7 +12,7 @@ let formatRate = (rate, multiplier) => {
 function Limit (max, min, rates) {
   this._inRemaining = {};
   this._outRemaining = {};
-  this._minimumInAmounts = min;
+  this._minimumInAmounts = min.minimumInAmounts;
   rates.forEach((rate) => { this.inRemaining[rate.curr] = formatRate(rate, max.in); });
   rates.forEach((rate) => { this.outRemaining[rate.curr] = formatRate(rate, max.out); });
 }

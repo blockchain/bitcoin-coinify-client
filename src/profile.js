@@ -162,9 +162,7 @@ CoinifyProfile.prototype.fetch = function () {
 
   var getMinimumLimits = () => this._api.GET('trades/payment-methods');
 
-  var setMinLimits = function (res) {
-    parentThis._minimumInAmounts = res;
-  };
+  var setMinLimits = (res) => (parentThis._minimumInAmounts = res);
 
   var setLimits = function (rates) {
     parentThis._limits = new Limits(parentThis._currentLimits, parentThis._minimumInAmounts, rates);
@@ -178,6 +176,11 @@ CoinifyProfile.prototype.fetch = function () {
       .then(getRates)
       .then(setLimits);
   } else {
+    parentThis._currentLimits = {
+      bank: {in: Infinity, out: Infinity},
+      card: { in: Infinity, out: Infinity },
+      blockchain: { in: Infinity, out: Infinity }
+    };
     return getMinimumLimits()
       .then(setMinLimits)
       .then(getRates)
