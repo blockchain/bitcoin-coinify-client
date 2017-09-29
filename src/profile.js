@@ -3,6 +3,7 @@
 var assert = require('assert');
 var Limits = require('./limits');
 var Level = require('./level');
+var ExchangeRate = require('./exchange-rate');
 
 module.exports = CoinifyProfile;
 
@@ -90,6 +91,12 @@ Object.defineProperties(CoinifyProfile.prototype, {
       return this._currentLimits;
     }
   },
+  'limits': {
+    configurable: false,
+    get: function () {
+      return this._limits;
+    }
+  },
   'canTrade': {
     configurable: false,
     get: function () {
@@ -112,7 +119,8 @@ Object.defineProperties(CoinifyProfile.prototype, {
 
 CoinifyProfile.prototype.fetch = function () {
   var parentThis = this;
-  return this._api.authGET('traders/me').then(function (res) {
+
+  var processProfile = (res) => {
     parentThis._full_name = res.profile.name;
     parentThis._gender = res.profile.gender;
 
@@ -132,7 +140,8 @@ CoinifyProfile.prototype.fetch = function () {
     parentThis._country = res.profile.address.country;
 
     parentThis._level = new Level(res.level);
-    parentThis._currentLimits = new Limits(res.currentLimits);
+    parentThis._limits = parentThis.limits || {};
+    parentThis._currentLimits = res.currentLimits;
 
     parentThis._canTrade = res.canTrade == null ? true : Boolean(res.canTrade);
     parentThis._canTradeAfter = new Date(res.canTradeAfter);
@@ -141,7 +150,39 @@ CoinifyProfile.prototype.fetch = function () {
     parentThis._did_fetch = true;
 
     return parentThis;
-  });
+  };
+
+  var getRates = function () {
+    var exchangeRate = new ExchangeRate(parentThis._api);
+    var defaultCurrency = parentThis.defaultCurrency || 'EUR';
+    var getRate = (curr) => exchangeRate.get(defaultCurrency, curr).then((amt) => ({ amt: amt, curr: curr }));
+
+    return Promise.all(['DKK', 'EUR', 'USD', 'GBP', 'BTC'].map(getRate));
+  };
+
+  var getMinimumLimits = () => this._api.GET('trades/payment-methods');
+
+  var setMinLimits = function (res) {
+    parentThis._minimumInAmounts = res;
+  };
+
+  var setLimits = function (rates) {
+    parentThis._limits = new Limits(parentThis._currentLimits, parentThis._minimumInAmounts, rates);
+  };
+
+  if (this._api.hasAccount) {
+    return this._api.authGET('traders/me')
+      .then(processProfile)
+      .then(getMinimumLimits)
+      .then(setMinLimits)
+      .then(getRates)
+      .then(setLimits);
+  } else {
+    return getMinimumLimits()
+      .then(setMinLimits)
+      .then(getRates)
+      .then(setLimits);
+  }
 };
 
 CoinifyProfile.prototype.setFullName = function (value) {

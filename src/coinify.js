@@ -36,11 +36,7 @@ class Coinify extends Exchange.Exchange {
   }
 
   get profile () {
-    if (!this._profile._did_fetch) {
-      return null;
-    } else {
-      return this._profile;
-    }
+    return this._profile;
   }
 
   getTrades () {

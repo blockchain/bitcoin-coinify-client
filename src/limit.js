@@ -1,23 +1,20 @@
 'use strict';
 
-var Helpers = require('bitcoin-exchange-client').Helpers;
-
 module.exports = Limit;
 
-function Limit (obj) {
-  // Is this the amount remaining at this moment, or the daily/weekly limit?
-  if ((obj.in && Helpers.isPositiveNumber(obj.in.daily)) || (obj.out && Helpers.isPositiveNumber(obj.out.daily))) {
-    if (obj.in) {
-      this._inDaily = obj.in.daily;
-      this._inYearly = obj.in.yearly;
-    }
-    if (obj.out) {
-      this._outDaily = obj.out.daily;
-    }
-  } else {
-    this._inRemaining = obj.in;
-    this._outRemaining = obj.out;
-  }
+let isBitCurrency = (curr) => curr === 'BTC';
+
+let formatRate = (rate, multiplier) => {
+  let decimalPlaces = isBitCurrency(rate.curr) ? 8 : 2;
+  return parseFloat((rate.amt * multiplier).toFixed(decimalPlaces));
+};
+
+function Limit (max, min, rates) {
+  this._inRemaining = {};
+  this._outRemaining = {};
+  this._minimumInAmounts = min;
+  rates.forEach((rate) => { this.inRemaining[rate.curr] = formatRate(rate, max.in); });
+  rates.forEach((rate) => { this.outRemaining[rate.curr] = formatRate(rate, max.out); });
 }
 
 Object.defineProperties(Limit.prototype, {
@@ -33,22 +30,10 @@ Object.defineProperties(Limit.prototype, {
       return this._outRemaining;
     }
   },
-  'inDaily': {
+  'minimumInAmounts': {
     configurable: false,
     get: function () {
-      return this._inDaily;
-    }
-  },
-  'outDaily': {
-    configurable: false,
-    get: function () {
-      return this._outDaily;
-    }
-  },
-  'inYearly': {
-    configurable: false,
-    get: function () {
-      return this._inYearly;
+      return this._minimumInAmounts;
     }
   }
 });
