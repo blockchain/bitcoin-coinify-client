@@ -3,7 +3,6 @@
 var assert = require('assert');
 var Limits = require('./limits');
 var Level = require('./level');
-var ExchangeRate = require('./exchange-rate');
 
 module.exports = CoinifyProfile;
 
@@ -152,39 +151,23 @@ CoinifyProfile.prototype.fetch = function () {
     return parentThis;
   };
 
-  var getRates = function () {
-    var exchangeRate = new ExchangeRate(parentThis._api);
-    var defaultCurrency = parentThis.defaultCurrency || 'EUR';
-    var getRate = (curr) => exchangeRate.get(defaultCurrency, curr).then((amt) => ({ amt: amt, curr: curr }));
-
-    return Promise.all(['DKK', 'EUR', 'USD', 'GBP', 'BTC'].map(getRate));
+  var getLimits = function () {
+    return parentThis._api.hasAccount
+           ? parentThis._api.authGET('trades/payment-methods')
+           : parentThis._api.GET('trades/payment-methods');
   };
 
-  var getMinimumLimits = () => this._api.GET('trades/payment-methods');
-
-  var setMinLimits = (res) => (parentThis._minimumInAmounts = res);
-
-  var setLimits = function (rates) {
-    parentThis._limits = new Limits(parentThis._currentLimits, parentThis._minimumInAmounts, rates);
+  var setLimits = function (methods) {
+    parentThis._limits = new Limits(methods);
   };
 
   if (this._api.hasAccount) {
     return this._api.authGET('traders/me')
       .then(processProfile)
-      .then(getMinimumLimits)
-      .then(setMinLimits)
-      .then(getRates)
+      .then(getLimits)
       .then(setLimits);
   } else {
-    parentThis._currentLimits = {
-      bank: {in: Infinity, out: Infinity},
-      card: { in: Infinity, out: Infinity },
-      blockchain: { in: Infinity, out: Infinity }
-    };
-    return getMinimumLimits()
-      .then(setMinLimits)
-      .then(getRates)
-      .then(setLimits);
+    return getLimits().then(setLimits);
   }
 };
 

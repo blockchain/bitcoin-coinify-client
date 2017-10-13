@@ -2,19 +2,11 @@
 
 module.exports = Limit;
 
-let isBitCurrency = (curr) => curr === 'BTC';
+let fallbackLimits = {DKK: Infinity, EUR: Infinity, USD: Infinity, GBP: Infinity, BTC: Infinity};
 
-let formatRate = (rate, multiplier) => {
-  let decimalPlaces = isBitCurrency(rate.curr) ? 8 : 2;
-  return parseFloat((rate.amt * multiplier).toFixed(decimalPlaces));
-};
-
-function Limit (max, min, rates) {
-  this._inRemaining = {};
-  this._outRemaining = {};
-  this._minimumInAmounts = min.minimumInAmounts;
-  rates.forEach((rate) => { this.inRemaining[rate.curr] = formatRate(rate, max.in); });
-  rates.forEach((rate) => { this.outRemaining[rate.curr] = formatRate(rate, max.out); });
+function Limit (method) {
+  this._inRemaining = method.limitInAmounts || fallbackLimits;
+  this._minimumInAmounts = method.minimumInAmounts;
 }
 
 Object.defineProperties(Limit.prototype, {
@@ -22,12 +14,6 @@ Object.defineProperties(Limit.prototype, {
     configurable: false,
     get: function () {
       return this._inRemaining;
-    }
-  },
-  'outRemaining': {
-    configurable: false,
-    get: function () {
-      return this._outRemaining;
     }
   },
   'minimumInAmounts': {

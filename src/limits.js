@@ -4,10 +4,10 @@ var Limit = require('./limit');
 
 module.exports = Limits;
 
-function Limits (max, min, rates) {
-  this._card = new Limit(max.card, min.find((medium) => medium.inMedium === 'card'), rates);
-  this._bank = new Limit(max.bank, min.find((medium) => medium.inMedium === 'bank'), rates);
-  this._blockchain = new Limit(max.bank, min.find((medium) => medium.inMedium === 'blockchain'), rates);
+function Limits (methods) {
+  this._card = new Limit(methods.find((method) => method.inMedium === 'card'));
+  this._bank = new Limit(methods.find((method) => method.inMedium === 'bank'));
+  this._blockchain = new Limit(methods.find((method) => method.inMedium === 'blockchain'));
 }
 
 Object.defineProperties(Limits.prototype, {

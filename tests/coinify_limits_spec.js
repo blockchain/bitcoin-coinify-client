@@ -51,7 +51,6 @@ describe('CoinifyLimits', function () {
       it('should process remaining amounts', function () {
         expect(remaining.card.inRemaining).toBe(100);
         expect(remaining.bank.inRemaining).toBe(1000);
-        expect(remaining.bank.outRemaining).toBe(1000);
       });
 
       it('should process daily limit', function () {
