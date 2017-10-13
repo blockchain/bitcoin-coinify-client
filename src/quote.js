@@ -20,9 +20,9 @@ class Quote extends Exchange.Quote {
 
     if (this._baseCurrency === 'BTC') {
       this._baseAmount = Math.round(obj.baseAmount * 100000000);
-      this._quoteAmount = Math.round(obj.quoteAmount);
+      this._quoteAmount = obj.quoteAmount;
     } else {
-      this._baseAmount = Math.round(obj.baseAmount);
+      this._baseAmount = obj.baseAmount;
       this._quoteAmount = Math.round(obj.quoteAmount * 100000000);
     }
 
