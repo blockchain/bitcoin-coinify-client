@@ -209,7 +209,7 @@ class Trade extends Exchange.Trade {
         transferOut: {
           medium: 'blockchain',
           details: {
-            account: quote.api._sandbox ? 'mr1XzK8Y6uLesyHYDm3bHGXrTDRJ6y7L4U' : receiveAddress
+            account: quote.api._sandbox ? 'n1zBkrzTMpcMMBApmmkwbhPEP8d4ChSmHK' : receiveAddress
           }
         }
       });
