@@ -17,7 +17,6 @@ describe('CoinifyLevel', function () {
     obj = {
       currency: 'EUR',
       feePercentage: 3,
-      limits: {},
       requirements: {},
       name: '1'
     };
@@ -32,11 +31,6 @@ describe('CoinifyLevel', function () {
         expect(level._feePercentage).toEqual(3);
         expect(level._currency).toEqual('EUR');
       });
-
-      it('should create a Limits object', function () {
-        level = new Level(obj);
-        expect(level._limits).toEqual({limits: 'limits_mock'});
-      });
     })
   );
 
@@ -49,7 +43,6 @@ describe('CoinifyLevel', function () {
       expect(level.currency).toEqual('EUR');
       expect(level.name).toEqual('1');
       expect(level.requirements).toEqual({});
-      expect(level.limits).toEqual({limits: 'limits_mock'});
       expect(level.feePercentage).toEqual(3);
     });
   });

@@ -88,8 +88,10 @@ describe('CoinifyProfile', function () {
             }
           };
         },
-        authPATCH () {}
+        authPATCH () {},
+        GET () {}
       };
+      spyOn(coinify, 'GET').and.callThrough();
       spyOn(coinify, 'authGET').and.callThrough();
       spyOn(coinify, 'authPATCH').and.callThrough();
       p = new CoinifyProfile(coinify);

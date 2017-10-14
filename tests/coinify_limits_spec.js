@@ -8,56 +8,33 @@ let Limits = proxyquire('../src/limits', stubs);
 
 // Tests both limits.js and limit.js
 describe('CoinifyLimits', function () {
-  let remainingObj;
-  let limitsObj;
-
-  let remaining;
   let limits;
 
   beforeEach(function () {
-    remainingObj = {
-      card: {
-        in: 100
+    let methods = [
+      {
+        'inMedium': 'card',
+        'limitInAmounts': {'GBP': 100, 'EUR': 100, 'USD': 100, 'DKK': 100}
       },
-      bank: {
-        in: 1000,
-        out: 1000
-      }
-    };
-
-    limitsObj = {
-      card: {
-        in: {
-          daily: 100
-        }
+      {
+        'inMedium': 'bank',
+        'limitInAmounts': {'GBP': 1000, 'EUR': 1000, 'USD': 1000, 'DKK': 1000}
       },
-      bank: {
-        in: {
-          daily: 1000,
-          yearly: 1000
-        },
-        out: {
-          daily: 1000
-        }
+      {
+        'inMedium': 'blockchain',
+        'limitInAmounts': {'BTC': 1}
       }
-    };
+    ]
 
-    remaining = new Limits(remainingObj);
-    limits = new Limits(limitsObj);
+    limits = new Limits(methods);
   });
 
   describe('class', () =>
     describe('new Limits()', function () {
       it('should process remaining amounts', function () {
-        expect(remaining.card.inRemaining).toBe(100);
-        expect(remaining.bank.inRemaining).toBe(1000);
-      });
-
-      it('should process daily limit', function () {
-        expect(limits.card.inDaily).toBe(100);
-        expect(limits.bank.inDaily).toBe(1000);
-        expect(limits.bank.inYearly).toBe(1000);
-        expect(limits.bank.outDaily).toBe(1000);
+        expect(limits.card.inRemaining['USD']).toBe(100);
+        expect(limits.bank.inRemaining['USD']).toBe(1000);
+        expect(limits.blockchain.inRemaining['BTC']).toBe(1);
       });
     })
   );
