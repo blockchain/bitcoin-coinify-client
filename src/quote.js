@@ -15,14 +15,14 @@ class Quote extends Exchange.Quote {
     this._id = obj.id;
     this._baseCurrency = obj.baseCurrency;
     this._quoteCurrency = obj.quoteCurrency;
-    this._expiresAt = expiresAt;
     this._timeOfRequest = timeOfRequest;
+    this._expiresAt = obj.id ? expiresAt : new Date(expiresAt.getTime() + 10 * 60 * 1000);
 
     if (this._baseCurrency === 'BTC') {
       this._baseAmount = Math.round(obj.baseAmount * 100000000);
-      this._quoteAmount = Math.round(obj.quoteAmount * 100);
+      this._quoteAmount = obj.quoteAmount;
     } else {
-      this._baseAmount = Math.round(obj.baseAmount * 100);
+      this._baseAmount = obj.baseAmount;
       this._quoteAmount = Math.round(obj.quoteAmount * 100000000);
     }
 

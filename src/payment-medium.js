@@ -70,7 +70,7 @@ class PaymentMedium extends ExchangePaymentMedium {
     var params = {};
     if (inCurrency) {
       /* including inCurrency restricts the response to only include limits in that one currency */
-      // params.inCurrency = inCurrency;
+      params.inCurrency = inCurrency;
     }
     if (outCurrency) {
       params.outCurrency = outCurrency;

@@ -9,7 +9,7 @@ let Level = obj =>
 let Limits = obj =>
   ({
     card: {
-      in: obj.card.in
+      in: obj.card.limitInAmounts
     }
   })
 ;
@@ -83,13 +83,19 @@ describe('CoinifyProfile', function () {
                 level: {name: '1'}
               });
               return {
+                then () {
+                  return {
+                    then () {}
+                  }
+                },
                 catch () {}
               };
             }
           };
         },
-        authPATCH () {}
+        authPATCH () {},
       };
+      coinify.hasAccount = true;
       spyOn(coinify, 'authGET').and.callThrough();
       spyOn(coinify, 'authPATCH').and.callThrough();
       p = new CoinifyProfile(coinify);

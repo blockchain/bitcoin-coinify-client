@@ -295,8 +295,6 @@ describe('Coinify', function () {
         expect(c._profile.fetch).toHaveBeenCalled();
       });
 
-      it('profile should be null before', () => expect(c.profile).toBeNull());
-
       it('should set .profile', function () {
         c.fetchProfile();
         expect(c.profile).not.toBeNull();
