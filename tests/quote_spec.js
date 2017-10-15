@@ -58,16 +58,16 @@ describe('Coinify Quote', function () {
         obj.quoteAmount = 0.00003505;
         q = new Quote(obj, {}, {});
         expect(q.baseAmount).toEqual(35.05);
-        expect(q.quoteAmount).toEqual(35.05);
+        expect(q.quoteAmount).toEqual(3505);
       });
 
-      it('must correctly round the fixed fee, BTC to fait', function () {
+      it('must correctly round the fixed fee, BTC to fiat', function () {
         obj.baseCurrency = 'BTC';
         obj.quoteCurrency = 'EUR';
         obj.baseAmount = 0.00003505;
         obj.quoteAmount = 35.05;
         q = new Quote(obj, {}, {});
-        expect(q.baseAmount).toEqual(35.05);
+        expect(q.baseAmount).toEqual(3505);
         expect(q.quoteAmount).toEqual(35.05);
       });
     });

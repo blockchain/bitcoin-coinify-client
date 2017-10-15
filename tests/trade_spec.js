@@ -25,6 +25,7 @@ describe('Coinify Trade', function () {
       inCurrency: 'USD',
       outCurrency: 'BTC',
       inAmount: 40,
+      sendAmount: 4000,
       transferIn: {
         medium: 'card',
         details: {
@@ -367,6 +368,7 @@ describe('Coinify Trade', function () {
 
       describe('fakeBankTransfer()', () =>
         it('should POST a fake bank-transfer', function () {
+          trade._sendAmount = 4000;
           trade.fakeBankTransfer();
           expect(api.authPOST).toHaveBeenCalledWith('trades/1142/test/bank-transfer', {
             sendAmount: 40,
