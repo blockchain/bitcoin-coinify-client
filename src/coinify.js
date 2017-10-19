@@ -177,6 +177,12 @@ class Coinify extends Exchange.Exchange {
       .then(processSubscriptions);
   }
 
+  cancelSubscription (id) {
+    assert(id, 'cancelSubscription requires an id');
+    const data = { isActive: false };
+    return this._api.authPATCH(`trades/subscriptions/${id}`, data);
+  }
+
   getBuyCurrencies () {
     var getCurrencies = function (paymentMethods) {
       var currencies = [];
