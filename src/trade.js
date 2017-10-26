@@ -202,7 +202,7 @@ class Trade extends Exchange.Trade {
     this._quoteExpireTime = new Date(new Date().getTime() + 3000);
   }
 
-  static buy (quote, medium, subscription) {
+  static buy (quote, medium, id, subscription) {
     const request = (receiveAddress) => {
       return quote.api.authPOST('trades', {
         priceQuoteId: quote.id,
