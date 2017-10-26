@@ -47,6 +47,8 @@ class Coinify extends Exchange.Exchange {
 
   get hasAccount () { return Boolean(this._offlineToken); }
 
+  get subscriptions () { return this._subscriptions; }
+
   get partnerId () { return this._partner_id; }
   set partnerId (value) {
     this._partner_id = value;
@@ -166,6 +168,19 @@ class Coinify extends Exchange.Exchange {
     return CoinifyKYC.fetchAll(this._api, this)
                        .then(update)
                        .then(save);
+  }
+
+  getSubscriptions () {
+    var processSubscriptions = (subs) => { this._subscriptions = subs; };
+
+    return this._api.authGET('trades/subscriptions')
+      .then(processSubscriptions);
+  }
+
+  cancelSubscription (id) {
+    assert(id, 'cancelSubscription requires an id');
+    const data = { isActive: false };
+    return this._api.authPATCH(`trades/subscriptions/${id}`, data);
   }
 
   getBuyCurrencies () {
