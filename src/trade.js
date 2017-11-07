@@ -44,6 +44,8 @@ class Trade extends Exchange.Trade {
 
   get receiptUrl () { return this._receiptUrl; }
 
+  get tradeSubscriptionId () { return this._tradeSubscriptionId; }
+
   get isBuy () {
     if (Boolean(this._is_buy) === this._is_buy) {
       return this._is_buy;
@@ -118,6 +120,7 @@ class Trade extends Exchange.Trade {
     this._updatedAt = new Date(obj.updateTime).getTime();
     this._quoteExpireTime = new Date(obj.quoteExpireTime).getTime();
     this._expiresAt = obj.quoteExpireTime ? this._quoteExpireTime : new Date().getTime() - 1;
+    this._tradeSubscriptionId = obj.tradeSubscriptionId;
     this._receiptUrl = obj.receiptUrl;
 
     if (this._inCurrency !== 'BTC') {
@@ -199,7 +202,7 @@ class Trade extends Exchange.Trade {
     this._quoteExpireTime = new Date(new Date().getTime() + 3000);
   }
 
-  static buy (quote, medium) {
+  static buy (quote, medium, id, subscription) {
     const request = (receiveAddress) => {
       return quote.api.authPOST('trades', {
         priceQuoteId: quote.id,
@@ -209,9 +212,10 @@ class Trade extends Exchange.Trade {
         transferOut: {
           medium: 'blockchain',
           details: {
-            account: quote.api._sandbox ? 'mr1XzK8Y6uLesyHYDm3bHGXrTDRJ6y7L4U' : receiveAddress
+            account: quote.api._sandbox ? 'n1zBkrzTMpcMMBApmmkwbhPEP8d4ChSmHK' : receiveAddress
           }
-        }
+        },
+        subscription: subscription
       });
     };
     return super.buy(quote, medium, request);

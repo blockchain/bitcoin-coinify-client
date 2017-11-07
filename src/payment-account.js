@@ -8,8 +8,8 @@ class PaymentAccount extends ExchangePaymentAccount {
   }
 
   // this should be moved into payment medium eventually
-  buy () {
-    return super.buy().then((trade) => {
+  buy (subscription) {
+    return super.buy(subscription).then((trade) => {
       trade._getQuote = this._quote.constructor.getQuote; // Prevents circular dependency
       return trade;
     });

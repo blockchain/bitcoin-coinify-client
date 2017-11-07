@@ -4,9 +4,10 @@ var Limit = require('./limit');
 
 module.exports = Limits;
 
-function Limits (obj) {
-  this._card = new Limit(obj.card);
-  this._bank = new Limit(obj.bank);
+function Limits (methods) {
+  this._card = new Limit(methods.find((method) => method.inMedium === 'card'));
+  this._bank = new Limit(methods.find((method) => method.inMedium === 'bank'));
+  this._blockchain = new Limit(methods.find((method) => method.inMedium === 'blockchain'));
 }
 
 Object.defineProperties(Limits.prototype, {
@@ -20,6 +21,12 @@ Object.defineProperties(Limits.prototype, {
     configurable: false,
     get: function () {
       return this._bank;
+    }
+  },
+  'blockchain': {
+    configurable: false,
+    get: function () {
+      return this._blockchain;
     }
   }
 });

@@ -48,7 +48,7 @@ describe('Coinify Quote', function () {
         expect(q._expiresAt).toEqual(new Date(obj.expiryTime));
         expect(q._baseCurrency).toBe(obj.baseCurrency);
         expect(q._quoteCurrency).toBe(obj.quoteCurrency);
-        expect(q._baseAmount).toBe(obj.baseAmount * 100);
+        expect(q._baseAmount).toBe(obj.baseAmount);
         expect(q._quoteAmount).toBe(obj.quoteAmount * 100000000);
         expect(q._id).toBe(obj.id);
       });
@@ -57,18 +57,18 @@ describe('Coinify Quote', function () {
         obj.baseAmount = 35.05; // 35.05 * 100 = 3504.9999999999995 in javascript
         obj.quoteAmount = 0.00003505;
         q = new Quote(obj, {}, {});
-        expect(q.baseAmount).toEqual(3505);
+        expect(q.baseAmount).toEqual(35.05);
         expect(q.quoteAmount).toEqual(3505);
       });
 
-      it('must correctly round the fixed fee, BTC to fait', function () {
+      it('must correctly round the fixed fee, BTC to fiat', function () {
         obj.baseCurrency = 'BTC';
         obj.quoteCurrency = 'EUR';
         obj.baseAmount = 0.00003505;
         obj.quoteAmount = 35.05;
         q = new Quote(obj, {}, {});
         expect(q.baseAmount).toEqual(3505);
-        expect(q.quoteAmount).toEqual(3505);
+        expect(q.quoteAmount).toEqual(35.05);
       });
     });
 
@@ -134,7 +134,7 @@ describe('Coinify Quote', function () {
 
         it('should resolve with the quote', function (done) {
           let checks = function (res) {
-            expect(res.quoteAmount).toEqual(50000);
+            expect(res.quoteAmount).toEqual(500);
             return done();
           };
 
