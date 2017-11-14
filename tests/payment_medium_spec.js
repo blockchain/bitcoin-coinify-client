@@ -37,9 +37,9 @@ beforeEach(function () {
     name: 'name',
     inCurrencies: 'inCurrencies',
     outCurrencies: 'outCurrencies',
-    inCurrency: 'inCurrency',
-    outCurrency: 'outCurrency',
-    inFixedFees: { 'EUR': 0.01 },
+    inCurrency: 'EUR',
+    outCurrency: 'BTC',
+    inFixedFees: { 'EUR': 1 },
     outFixedFees: { 'BTC': 0.01 },
     inPercentageFee: 3,
     outPercentageFee: 0,
@@ -51,8 +51,8 @@ beforeEach(function () {
     name: 'name',
     inCurrencies: 'inCurrencies',
     outCurrencies: 'outCurrencies',
-    inCurrency: 'inCurrency',
-    outCurrency: 'outCurrency',
+    inCurrency: 'EUR',
+    outCurrency: 'BTC',
     inFixedFees: { 'BTC': 0 },
     outFixedFees: { 'EUR': 0 },
     inPercentageFee: 3,
@@ -83,8 +83,8 @@ describe('Coinify Payment medium', function () {
       expect(b._outCurrencies).toBe(o.outCurrencies);
       expect(b._inCurrency).toBe(o.inCurrency);
       expect(b._outCurrency).toBe(o.outCurrency);
-      expect(b._inFixedFee).toBe(o.inFixedFee * 100);
-      expect(b._outFixedFee).toBe(o.outFixedFee * 100);
+      expect(b._inFixedFees).toBe(o.inFixedFees);
+      expect(b._outFixedFees).toBe(o.outFixedFees);
       expect(b._inPercentageFee).toBe(o.inPercentageFee);
       expect(b._outPercentageFee).toBe(o.outPercentageFee);
       expect(b._minimumInAmounts).toBe(o.minimumInAmounts);
@@ -112,21 +112,19 @@ describe('Coinify Payment medium', function () {
     });
 
     it('must correctly round the fixed fee for fiat to BTC', function () {
-      o.inFixedFee = 35.05; // 35.05 * 100 = 3504.9999999999995 in javascript
-      o.outFixedFee = 35.05; // 35.05 * 100 = 3504.9999999999995 in javascript
       b = new PaymentMethod(o, api);
-      expect(b.inFixedFee).toEqual(3505);
-      expect(b.outFixedFee).toEqual(3505000000);
+      expect(b._inFixedFees['EUR']).toEqual(1);
+      expect(b._outFixedFees['BTC']).toEqual(.01);
     });
 
     it('must correctly round the fixed fee for BTC to fiat', function () {
       o.inCurrency = 'BTC';
       o.outCurrency = 'EUR';
-      o.inFixedFee = 35.05;
-      o.outFixedFee = 35.05;
+      o.inFixedFees = { 'BTC': 35.05 };
+      o.outFixedFees = { 'EUR': 35.05 };
       b = new PaymentMethod(o, api);
-      expect(b.inFixedFee).toEqual(3505000000);
-      expect(b.outFixedFee).toEqual(3505);
+      expect(b._inFixedFees[o.inCurrency]).toEqual(35.05);
+      expect(b._outFixedFees[o.outCurrency]).toEqual(35.05);
     });
 
     it('should set the fiat medium', function () {
@@ -189,22 +187,4 @@ describe('Coinify Payment medium', function () {
         .then(done);
     });
   });
-
-  // describe('instance', function () {
-  //   beforeEach(function () {
-  //     quote = {baseAmount: -1000, baseCurrency: 'EUR', quoteAmount: 2};
-  //     b = new PaymentMethod(o, api, quote);
-  //   });
-  //
-  //   describe('getAccounts()', () =>
-  //     it('should return a dummy account', function (done) {
-  //       let promise = b.getAccounts().then(res =>
-  //         expect(res).toEqual([{
-  //           mock: 'payment-account', fiatMedium: 'bank', quote
-  //         }])
-  //       );
-  //       expect(promise).toBeResolved(done);
-  //     })
-  //   );
-  // });
 });
