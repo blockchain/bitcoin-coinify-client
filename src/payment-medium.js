@@ -31,13 +31,9 @@ class PaymentMedium extends ExchangePaymentMedium {
     this._inCurrency = obj.inCurrency;
     this._outCurrency = obj.outCurrency;
 
-    if (this._inCurrency === 'BTC') {
-      this._inFixedFee = Math.round(obj.inFixedFee * 100000000);
-      this._outFixedFee = Math.round(obj.outFixedFee * 100);
-    } else {
-      this._inFixedFee = Math.round(obj.inFixedFee * 100);
-      this._outFixedFee = Math.round(obj.outFixedFee * 100000000);
-    }
+    this._inFixedFees = obj.inFixedFees;
+    this._outFixedFees = obj.outFixedFees;
+
     this._inPercentageFee = obj.inPercentageFee;
     this._outPercentageFee = obj.outPercentageFee;
 
@@ -47,13 +43,14 @@ class PaymentMedium extends ExchangePaymentMedium {
     if (quote) {
       let amt = quote.baseCurrency === 'BTC' ? quote.quoteAmount : quote.baseAmount;
       let percentageFee = obj.inMedium === 'blockchain' ? -this.outPercentageFee : this.inPercentageFee;
-      this._fee = parseFloat((this.inFixedFee + -amt * (percentageFee / 100)).toFixed(2));
+      this._fee = parseFloat((this._inFixedFees[this._inCurrency] + -amt * (percentageFee / 100)).toFixed(2));
       this._total = -amt + this._fee;
     }
   }
 
   get name () { return this._name; }
   get limitInAmounts () { return this._limitInAmounts; }
+  get transactionFee () { return this._transactionFee; }
   get minimumInAmounts () { return this._minimumInAmounts; }
 
   getAccounts () {

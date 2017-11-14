@@ -91,6 +91,12 @@ class Trade extends Exchange.Trade {
         : Helpers.toCents(obj.transferIn.sendAmount);
     }
 
+    if (obj.transferOut) {
+      this._receiveAmount = this._inCurrency === 'BTC'
+        ? obj.transferIn.receiveAmount
+        : obj.transferOut.receiveAmount;
+    }
+
     if (this._inCurrency === 'BTC') {
       this._inAmount = Helpers.toSatoshi(obj.inAmount);
       this._outAmount = Helpers.toCents(obj.outAmount);

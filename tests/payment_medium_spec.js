@@ -39,8 +39,8 @@ beforeEach(function () {
     outCurrencies: 'outCurrencies',
     inCurrency: 'inCurrency',
     outCurrency: 'outCurrency',
-    inFixedFee: 0.01,
-    outFixedFee: 0,
+    inFixedFees: { 'EUR': 0.01 },
+    outFixedFees: { 'BTC': 0.01 },
     inPercentageFee: 3,
     outPercentageFee: 0,
     minimumInAmounts: {}
@@ -53,8 +53,8 @@ beforeEach(function () {
     outCurrencies: 'outCurrencies',
     inCurrency: 'inCurrency',
     outCurrency: 'outCurrency',
-    inFixedFee: 0.01,
-    outFixedFee: 0,
+    inFixedFees: { 'BTC': 0 },
+    outFixedFees: { 'EUR': 0 },
     inPercentageFee: 3,
     outPercentageFee: 0
   };
