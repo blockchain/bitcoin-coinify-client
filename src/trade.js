@@ -92,7 +92,7 @@ class Trade extends Exchange.Trade {
     }
 
     if (obj.transferOut) {
-      this._receiveAmount = this._inCurrency === 'BTC'
+      this._receiveAmount = this._is_buy
         ? obj.transferIn.receiveAmount
         : obj.transferOut.receiveAmount;
     }
