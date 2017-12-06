@@ -216,7 +216,7 @@ class Trade extends Exchange.Trade {
         transferOut: {
           medium: 'blockchain',
           details: {
-            account: quote.api._sandbox ? 'n1zBkrzTMpcMMBApmmkwbhPEP8d4ChSmHK' : receiveAddress
+            account: receiveAddress
           }
         },
         subscription: subscription
