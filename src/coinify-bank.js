@@ -18,6 +18,7 @@ function CoinifyBank (obj, api) {
   this._referenceText = obj.referenceText;
   this._updated_at = obj.updateTime; // Not used in buy
   this._created_at = obj.createTime; // Not used in buy
+  this._bank_name = obj.bank.name;
 }
 
 Object.defineProperties(CoinifyBank.prototype, {

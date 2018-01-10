@@ -91,6 +91,10 @@ class Trade extends Exchange.Trade {
         : Helpers.toCents(obj.transferIn.sendAmount);
     }
 
+    if (obj.transferOut) {
+      this._receiveAmount = obj.transferOut.receiveAmount;
+    }
+
     if (this._inCurrency === 'BTC') {
       this._inAmount = Helpers.toSatoshi(obj.inAmount);
       this._outAmount = Helpers.toCents(obj.outAmount);
@@ -212,7 +216,7 @@ class Trade extends Exchange.Trade {
         transferOut: {
           medium: 'blockchain',
           details: {
-            account: quote.api._sandbox ? 'n1zBkrzTMpcMMBApmmkwbhPEP8d4ChSmHK' : receiveAddress
+            account: receiveAddress
           }
         },
         subscription: subscription

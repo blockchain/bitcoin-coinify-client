@@ -171,7 +171,7 @@ class Coinify extends Exchange.Exchange {
   }
 
   getSubscriptions () {
-    var processSubscriptions = (subs) => { this._subscriptions = subs; };
+    var processSubscriptions = (subs) => { this._subscriptions = subs; return subs; };
 
     return this._api.authGET('trades/subscriptions')
       .then(processSubscriptions);
