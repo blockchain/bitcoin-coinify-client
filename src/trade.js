@@ -138,7 +138,10 @@ class Trade extends Exchange.Trade {
       }
 
       this._receiveAddress = obj.transferOut.details.account;
-      this._iSignThisID = obj.transferIn.details.paymentId;
+
+      // NOTE: obj.transferIn.details.paymentId is obsolete and has be replaced
+      // by use of the redirect url.
+      this._iSignThisID = obj.transferIn.details.redirectUrl;
     }
     return this;
   }
