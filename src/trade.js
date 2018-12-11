@@ -214,7 +214,8 @@ class Trade extends Exchange.Trade {
       return quote.api.authPOST('trades', {
         priceQuoteId: quote.id,
         transferIn: {
-          medium: medium
+          medium: medium,
+          details: medium === 'card' ? { preferredIntegrationMethod: 'payment-page' } : {}
         },
         transferOut: {
           medium: 'blockchain',
