@@ -29,7 +29,8 @@ describe('Coinify Trade', function () {
       transferIn: {
         medium: 'card',
         details: {
-          paymentId: '05e18928-7b29-4b70-b29e-84cfe9fbc5ac'
+          paymentId: '05e18928-7b29-4b70-b29e-84cfe9fbc5ac',
+          redirectUrl: 'https://pay.coinify.com'
         }
       },
       transferOut: {
@@ -168,7 +169,7 @@ describe('Coinify Trade', function () {
         trade = new Trade(null, api, delegate);
         trade.setFromAPI(tradeJSON);
         expect(trade.id).toEqual(1142);
-        expect(trade.iSignThisID).toEqual('05e18928-7b29-4b70-b29e-84cfe9fbc5ac');
+        expect(trade.iSignThisID).toEqual('https://pay.coinify.com');
         expect(trade.quoteExpireTime).toEqual(new Date('2016-08-26T15:10:00.000Z').getTime());
         expect(trade.createdAt).toEqual(new Date('2016-08-26T14:53:26.650Z').getTime());
         expect(trade.updatedAt).toEqual(new Date('2016-08-26T14:54:00.000Z').getTime());
