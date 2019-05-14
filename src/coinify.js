@@ -53,6 +53,14 @@ class Coinify extends Exchange.Exchange {
   set partnerId (value) {
     this._partner_id = value;
   }
+  
+  set user (value) {
+	  this._user = value;
+  }
+  
+  set offlineToken (value) {
+	  this._offlineToken = value;
+  }
 
   get buyCurrencies () { return this._buyCurrencies; }
 
