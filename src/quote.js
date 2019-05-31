@@ -34,7 +34,7 @@ class Quote extends Exchange.Quote {
   static getQuote (api, delegate, amount, baseCurrency, quoteCurrency, debug) {
     const processQuote = (quote) => new Quote(quote, api, delegate);
 
-    const getQuote = (_baseAmount) => {
+    const getQ = (_baseAmount) => {
       var getAnonymousQuote = function () {
         return api.POST('trades/quote', {
           baseCurrency: baseCurrency,
@@ -43,7 +43,7 @@ class Quote extends Exchange.Quote {
         });
       };
 
-      var getQuote = function () {
+      var getUserQuote = function () {
         return api.authPOST('trades/quote', {
           baseCurrency: baseCurrency,
           quoteCurrency: quoteCurrency,
@@ -54,12 +54,12 @@ class Quote extends Exchange.Quote {
       if (!api.hasAccount) {
         return getAnonymousQuote().then(processQuote);
       } else {
-        return getQuote().then(processQuote);
+        return getUserQuote().then(processQuote);
       }
     };
 
     return super.getQuote(amount, baseCurrency, quoteCurrency, ['BTC', 'EUR', 'GBP', 'USD', 'DKK'], debug)
-             .then(getQuote);
+             .then(getQ);
   }
 
   // QA tool
