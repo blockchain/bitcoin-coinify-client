@@ -5,9 +5,13 @@ var Limit = require('./limit');
 module.exports = Limits;
 
 function Limits (methods) {
-  this._card = new Limit(methods.find((method) => method.inMedium === 'card') || {});
-  this._bank = new Limit(methods.find((method) => method.inMedium === 'bank') || {});
-  this._blockchain = new Limit(methods.find((method) => method.inMedium === 'blockchain') || {});
+  var card = methods.find((method) => method.inMedium === 'card');
+  let bank = methods.find((method) => method.inMedium === 'bank');
+  let blockchain = methods.find((method) => method.inMedium === 'blockchain');
+
+  this._card = card ? new Limit(card) : null;
+  this._bank = bank ? new Limit(bank) : null;
+  this._blockchain = blockchain ? new Limit(blockchain) : null;
 }
 
 Object.defineProperties(Limits.prototype, {
