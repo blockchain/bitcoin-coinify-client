@@ -40,6 +40,9 @@ class PaymentMedium extends ExchangePaymentMedium {
     this._bankId = obj.bankId;
     this._bankAccount = obj.bankAccount;
 
+    this._canTrade = obj.canTrade;
+    this._cannotTradeReasons = obj.cannotTradeReasons;
+
     if (quote) {
       let amt = quote.baseCurrency === 'BTC' ? quote.quoteAmount : quote.baseAmount;
       let percentageFee = obj.inMedium === 'blockchain' ? -this.outPercentageFee : this.inPercentageFee;
@@ -52,6 +55,9 @@ class PaymentMedium extends ExchangePaymentMedium {
   get limitInAmounts () { return this._limitInAmounts; }
   get transactionFee () { return this._transactionFee; }
   get minimumInAmounts () { return this._minimumInAmounts; }
+
+  get canTrade () { return this._canTrade; }
+  get cannotTradeReasons () { return this._cannotTradeReasons; }
 
   getAccounts () {
     return Promise.resolve([new PaymentAccount(this._api, this.fiatMedium, this._quote)]);
